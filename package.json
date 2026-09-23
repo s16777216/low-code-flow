@@ -1,0 +1,12 @@
+{
+  "name": "low-code-flow",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": "l1597532@gmail.com",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
