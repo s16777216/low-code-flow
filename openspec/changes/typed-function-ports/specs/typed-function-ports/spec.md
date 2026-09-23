@@ -33,6 +33,17 @@ Function 與可執行 Node SHALL 支援零個或多個具名 input ports 與 out
 ### Requirement: Port-to-port edges
 每條 DAG Edge SHALL 從特定 Node output port 連接到特定 Node input port。系統 MUST 僅在來源 port Type 可 assign 至目標 port Type 時接受 Edge。
 
+**Edge 必須從特定 Output Port 連接到特定 Input Port**，並依據 **nominal assignability** 驗證連線是否合法。
+- **範例**：
+  ```ts
+  interface Edge {
+    sourceNodeId: string;
+    sourcePortId: string;  // 必須明確指定 Port ID
+    targetNodeId: string;
+    targetPortId: string;  // 必須明確指定 Port ID
+  }
+  ```
+
 #### Scenario: Connect compatible ports
 - **WHEN** source output Type 是 target input Type 的相同 Type 或 descendant
 - **THEN** 系統接受該 Edge
@@ -78,6 +89,12 @@ Function Node SHALL 投影被引用 Child Function 的完整 input/output port s
 ### Requirement: Node readiness by input ports
 Node SHALL 僅在所有 input ports 都收到成功產生且通過 Type validation 的 values 後進入 running。若任一必要 producer failed 或 cancelled，尚未執行的 dependent Node MUST 進入 skipped 或 cancelled，而不得以部分 inputs 執行。
 
+**下游 Node 執行條件**：
+- 所有 `required` Input 必須 `settled`（不再 `pending`）。
+- 所有 `required` Input 必須都是 `emitted`（不能有 `not_emitted`）。
+- 如果任一 `required` Input 是 `not_emitted` → **SKIP** 此 Node。
+- 如果任一 `required` Input 仍是 `pending` → **WAIT**。
+
 #### Scenario: Wait for all inputs
 - **WHEN** Node 的一個 input 已就緒而另一個 input 尚在執行
 - **THEN** 該 Node 保持 pending
@@ -92,6 +109,26 @@ Node SHALL 僅在所有 input ports 都收到成功產生且通過 Type validati
 
 ### Requirement: Atomic required outputs
 成功完成的 Node SHALL 為每個 declared output port 產生且僅產生一個通過 validation 的 value。所有 declared outputs 構成單次原子完成結果；缺少、未知或無效的 output MUST 使 Node failed，且不得發布部分 outputs。
+
+**Output 狀態必須明確區分 `emitted`/`not_emitted`**，並遵循以下規則：
+- **`emitted`**：Output 有正式回傳（包括 `null`、`""`、`[]`、`{}`、`0`、`false` 等）。
+- **`not_emitted`**：Output 在此次執行中未產生。
+
+**禁止使用 `truthy`/`falsy` 判斷**：
+```ts
+// 錯誤：
+if (output.value) { ... }
+
+// 正確：
+if (output.status === "emitted") { ... }
+```
+
+**Output 必須在 Node `execute()` 完成後一次性發布**，不得在執行期間對外公開。
+- **範例**：
+  ```text
+  RUNNING → 不 publish output
+  COMPLETED → 一次 return 全部 outputs → runtime publish
+  ```
 
 #### Scenario: Publish all valid outputs
 - **WHEN** Node 為每個 declared output port 回傳有效 value

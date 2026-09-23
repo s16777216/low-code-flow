@@ -37,6 +37,16 @@
 ### Requirement: Nominal assignability
 系統 SHALL 僅在來源 Type 與目標 Type 相同，或來源 Type 是目標 Type 的 descendant 時，允許 Typed Value 直接傳遞。系統 MUST NOT 以資料結構相同作為 assignability 依據。
 
+**Schema 兼容性必須依據 nominal assignability 驗證**：
+- **合法**：
+  ```text
+  CurrentUser Output → BaseUser Input  // 合法（子類型 → 父類型）
+  ```
+- **不合法**：
+  ```text
+  BaseUser Output → CurrentUser Input  // 不合法（父類型 → 子類型）
+  ```
+
 #### Scenario: Pass a subtype to a parent type
 - **WHEN** `AdminUser` 繼承 `User`，且來源 Type 是 `AdminUser`、目標 Type 是 `User`
 - **THEN** 系統判定來源可傳遞至目標
@@ -70,6 +80,19 @@ Type definition SHALL 依其 root type 定義可驗證的資料限制。Object s
 
 ### Requirement: Typed runtime values
 任何跨 Node port 或 Function boundary 傳遞的資料 SHALL 同時具有 Type identity 與 value。系統 MUST 依該 Type definition 及其完整 inheritance chain 驗證 value，而不得從 value 結構推測 nominal Type。
+
+**`null`、`""`、`[]`、`{}`、`0`、`false` 都是合法的 `emitted` 值**，不能與 `not_emitted` 混淆。
+
+**範例**：
+```ts
+// 合法：
+emit(null)    // emitted
+emit("")      // emitted
+emit([])      // emitted
+
+// 不合法：
+if (output.value) { ... } // 錯誤：無法區分 emitted(null) 與 not_emitted
+```
 
 #### Scenario: Preserve type identity for equal primitive values
 - **WHEN** `UserId` 與 `OrderId` 的 value 都是字串 `123`
