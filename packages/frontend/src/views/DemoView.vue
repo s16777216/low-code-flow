@@ -1,15 +1,39 @@
-<script setup lang="ts">
+<template>
+  <VueFlow :nodes="nodes" :edges="edges">
+    <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
+    <template #node-special="specialNodeProps">
+      <SpecialNode v-bind="specialNodeProps" />
+    </template>
+
+    <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
+    <template #edge-special="specialEdgeProps">
+      <SpecialEdge v-bind="specialEdgeProps" />
+    </template>
+
+    <template #node-function="functionNodeProps">
+      <FunctionNode v-bind="functionNodeProps" />
+    </template>
+
+    <MiniMap pannable zoomable />
+    <Controls />
+  </VueFlow>
+</template>
+<script lang="ts" setup>
 import { ref } from 'vue'
 import type { Node, Edge } from '@vue-flow/core'
 import { VueFlow } from '@vue-flow/core'
+import { MiniMap } from '@vue-flow/minimap'
+import { Controls } from '@vue-flow/controls'
 
 // these components are only shown as examples of how to use a custom node or edge
 // you can find many examples of how to create these custom components in the examples page of the docs
 import SpecialNode from '@/components/SpecialNode.vue'
 import SpecialEdge from '@/components/SpecialEdge.vue'
+import FunctionNode from '@/components/FunctionNode.vue'
+import type { FunctionNode as FunctionNodeType } from '@/types/FunctionNode'
 
 // these are our nodes
-const nodes = ref<Node[]>([
+const nodes = ref<Node<FunctionNodeType>[]>([
   // an input node, specified by using `type: 'input'`
   {
     id: '1',
@@ -44,9 +68,14 @@ const nodes = ref<Node[]>([
     position: { x: 400, y: 200 },
     data: {
       label: 'Node 4',
-      hello: 'world',
     },
   },
+  {
+    id: '5',
+    type: 'function',
+    position: { x: 400, y: 200 },
+    data: { label: 'Node 5', inputs: ['input1', 'input2', 'input3'], outputs: ['output1', 'output2'] },
+  }
 ])
 
 // these are our edges
@@ -81,26 +110,5 @@ const edges = ref<Edge[]>([
     }
   },
 ])
+
 </script>
-
-<template>
-  <VueFlow :nodes="nodes" :edges="edges">
-    <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
-    <template #node-special="specialNodeProps">
-      <SpecialNode v-bind="specialNodeProps" />
-    </template>
-
-    <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
-    <template #edge-special="specialEdgeProps">
-      <SpecialEdge v-bind="specialEdgeProps" />
-    </template>
-  </VueFlow>
-</template>
-
-<style>
-/* import the necessary styles for Vue Flow to work */
-@import '@vue-flow/core/dist/style.css';
-
-/* import the default theme, this is optional but generally recommended */
-@import '@vue-flow/core/dist/theme-default.css';
-</style>
