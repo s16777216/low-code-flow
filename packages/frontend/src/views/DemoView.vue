@@ -74,7 +74,18 @@ const nodes = ref<Node<FunctionNodeType>[]>([
     id: '5',
     type: 'function',
     position: { x: 400, y: 200 },
-    data: { label: 'Node 5', inputs: ['input1', 'input2', 'input3'], outputs: ['output1', 'output2'] },
+    data: {
+      label: 'Node 5',
+      inputs: [
+        { id: 'in-1', name: 'input1' },
+        { id: 'in-2', name: 'input2' },
+        { id: 'in-3', name: 'input3' },
+      ],
+      outputs: [
+        { id: 'out-1', name: 'output1' },
+        { id: 'out-2', name: 'output2' },
+      ],
+    },
   }
 ])
 

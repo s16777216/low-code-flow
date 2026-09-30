@@ -13,45 +13,62 @@ const outputPorts = computed(() => props.data.outputs || [])
 
 <template>
   <div class="vue-flow__node-function">
-
-    <div class="handles-container">
-      <Handle v-for="(input, index) in inputPorts" :key="index" :id="input" type="source" :position="Position.Left">
-        <span class="source-handle-label">
-          {{ input }}
-        </span>
-      </Handle>
-    </div>
-    <div class="function-node-container">
-      <div>{{ data.label }}</div>
-      <div>
-        <CodeIcon />
+    <div class="node-function-container">
+      <div class="node-function-title">
+        {{ data.label }}
       </div>
-    </div>
-    <div class="handles-container">
-      <Handle v-for="(output, index) in outputPorts" :key="index" :id="output" type="target" :position="Position.Right">
-        <span class="target-handle-label">
-          {{ output }}
-        </span>
-      </Handle>
+      <div class="node-function-body">
+        <div class="handles-container">
+          <Handle v-for="input in inputPorts" :key="input.id" :id="input.id" type="target" :position="Position.Left">
+            <span class="input-handle-label">
+              {{ input.name }}
+            </span>
+          </Handle>
+        </div>
+        <div class="node-function-icon">
+          <CodeIcon :size="44" />
+        </div>
+        <div class="handles-container">
+          <Handle v-for="output in outputPorts" :key="output.id" :id="output.id" type="source"
+            :position="Position.Right">
+            <span class="output-handle-label">
+              {{ output.name }}
+            </span>
+          </Handle>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.vue-flow__node-function {
+.node-function-container {
   background-color: #fff;
   border: 1px solid #222;
   border-radius: 5px;
-  width: 150px;
+  width: 100px;
+  min-height: 100px;
   text-align: center;
   color: #222;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
-.function-node-container {
+.node-function-title {
+  font-size: 14px;
+  font-weight: bold;
+  position: absolute;
+  top: 100%;
+  padding: 4px 0;
+  color: white
+}
+
+.node-function-icon {
   flex: 1;
 }
 
@@ -60,20 +77,36 @@ const outputPorts = computed(() => props.data.outputs || [])
   display: flex;
   flex-direction: column;
   gap: 25px;
-  padding: 25px 0;
-  margin-top: 8px;
+  padding: 15px 0;
+  margin-top: 12px;
 }
 
 .handles-container .vue-flow__handle {
   position: static;
   width: 16px;
   height: 16px;
+  display: flex;
+  align-items: center;
 }
 
-.source-handle-label {
-  position: relative;
-  top: -8px;
-  left: 20px;
-  font-size: 12px;
+.input-handle-label {
+  position: absolute;
+  right: calc(100% + 3px);
+  font-size: 10px;
+  color: rgb(177, 177, 177)
+}
+
+.output-handle-label {
+  position: absolute;
+  left: calc(100% + 3px);
+  font-size: 10px;
+  color: rgb(177, 177, 177)
+}
+
+.node-function-body {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
 }
 </style>

@@ -1,10 +1,14 @@
-import type { LucideIcon } from "@lucide/vue";
+export interface FunctionPort {
+  // Immutable handle ID; edges reference this, so renaming `name` keeps connections intact.
+  id: string
+  name: string
+}
 
 export interface FunctionNode {
-  label: string;
-  inputs?: string[];
-  outputs?: string[];
-  code?: string;
+  label: string
+  inputs?: FunctionPort[]
+  outputs?: FunctionPort[]
+  code?: string
 }
 
 type DefinitionType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'any';
@@ -20,5 +24,3 @@ interface OutputDefinition {
   name: string
   type: DefinitionType
 }
-
-
