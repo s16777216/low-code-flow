@@ -21,7 +21,7 @@ const outputPorts = computed(() => props.data.outputs || [])
         <div class="handles-container">
           <Handle v-for="input in inputPorts" :key="input.id" :id="input.id" type="target" :position="Position.Left">
             <span class="input-handle-label">
-              {{ input.name }}
+              {{ input.name }} : {{ input.type }}
             </span>
           </Handle>
         </div>
@@ -32,7 +32,7 @@ const outputPorts = computed(() => props.data.outputs || [])
           <Handle v-for="output in outputPorts" :key="output.id" :id="output.id" type="source"
             :position="Position.Right">
             <span class="output-handle-label">
-              {{ output.name }}
+              {{ output.name }} : {{ output.type }}
             </span>
           </Handle>
         </div>
@@ -79,6 +79,7 @@ const outputPorts = computed(() => props.data.outputs || [])
   gap: 25px;
   padding: 15px 0;
   margin-top: 12px;
+  width: 0;
 }
 
 .handles-container .vue-flow__handle {
@@ -89,18 +90,26 @@ const outputPorts = computed(() => props.data.outputs || [])
   align-items: center;
 }
 
+.handles-container .source {
+  transform: translate(-50%, -50%);
+}
+
 .input-handle-label {
+  width: max-content;
   position: absolute;
   right: calc(100% + 3px);
   font-size: 10px;
-  color: rgb(177, 177, 177)
+  color: rgb(177, 177, 177);
+  padding-top: 15px;
 }
 
 .output-handle-label {
+  width: max-content;
   position: absolute;
   left: calc(100% + 3px);
   font-size: 10px;
-  color: rgb(177, 177, 177)
+  color: rgb(177, 177, 177);
+  padding-top: 15px;
 }
 
 .node-function-body {

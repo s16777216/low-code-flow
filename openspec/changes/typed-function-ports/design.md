@@ -44,7 +44,7 @@ interface TypeDefinition {
   name: string;
   parentTypeId: string | null;
   rootKind: "string" | "number" | "date" | "function" |
-            "object" | "bool" | "array";
+            "object" | "boolean" | "array" | "any";
   definition: TypeConstraintDefinition;
   definitionHash: string;
 }
@@ -69,9 +69,18 @@ System base Types 固定且不可修改；使用者 Type 只能有一個 parent�
 value conforms to declared source Type
                      +
 source Type == target Type OR source extends target
+  OR source == any OR target == any
                      ↓
                   accepted
 ```
+
+`any` 是唯一跳過 nominal 規則的系統型別，不參與繼承：使用者 Type 不得以 `any` 為 parent，`any` 也不是其他基礎型別的 ancestor，因此 `rootKind` 為 `any` 的只有 `system:any` 本身。
+
+- **傳入 `any`**：設計期一律接受；value 保留原本的 Type identity，不改標為 `any`。
+- **從 `any` 傳出**：設計期接受；執行期由 Backend 在交付給目標 port 前，依目標 Type 的完整 ancestor chain 驗證 value。驗證通過後改標為目標 Type；失敗則接收的 Node 失敗，並回報該 input port 的 validation error，downstream 依一般失敗規則處理。
+- **外部輸入至 `any` port**：接受任何可序列化的 transport value，Type identity 為 `any`。
+
+選擇雙向相容是為了讓通用 Function（logging、pass-through、動態資料處理）可以接受並回傳任意資料，而不必為每個型別各寫一份。代價是從 `any` 流出的連線失去設計期保證，錯誤延後到執行期才發現；Editor 應在此類 Edge 上標示需要執行期驗證。替代方案是只允許傳入 `any`（類似 TypeScript `unknown`），傳出必須經由 Code Node 明確轉換；這保留完整的設計期保證，但會讓通用 Function 的輸出難以直接使用。
 
 Schema validator 展開完整 ancestor chain。Object child 只能新增 properties 或收窄限制，不允許移除或不相容 override；primitive child 可增加 constraints；array child 必須宣告 element Type。Array 間不依 element Type 自動產生繼承，只有顯式 Type ancestry 能建立 assignability。
 

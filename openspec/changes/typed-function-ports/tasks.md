@@ -2,17 +2,18 @@
 
 - [ ] 1.1 Complete the separate `file-driven-projects` change through its Project Asset Registry boundary, and verify its contract can resolve project-local Type, Function, and Code assets by stable ID and definition hash without cross-project lookup
 - [ ] 1.2 Scaffold the backend domain and test modules needed by the typed-port POC, and verify the project typecheck and empty test suite run successfully
-- [ ] 1.3 Implement immutable system base Type definitions for `string`, `number`, `date`, `function`, `object`, `bool`, and `array`, and verify tests reject creating, modifying, or deleting base Types
+- [ ] 1.3 Implement immutable system base Type definitions for `string`, `number`, `date`, `function`, `object`, `boolean`, `array`, and `any`, and verify tests reject creating, modifying, or deleting base Types and reject user Types that inherit `any`
 - [ ] 1.4 Implement user Type definitions with stable IDs, one parent, root-kind resolution, canonical definition hashing, and verify unit tests cover custom and multi-level ancestry
-- [ ] 1.5 Implement inheritance cycle detection and nominal assignability, and verify tests cover same-Type, descendant-to-ancestor, reverse, sibling, and structurally identical unrelated Types
+- [ ] 1.5 Implement inheritance cycle detection and nominal assignability, and verify tests cover same-Type, descendant-to-ancestor, reverse, sibling, structurally identical unrelated Types, and bidirectional `any` connections
 
 ## 2. Type Constraints and Runtime Values
 
 - [ ] 2.1 Implement inherited object property definitions and validation, and verify tests cover added properties, missing inherited properties, and rejected incompatible overrides
 - [ ] 2.2 Implement primitive narrowing constraints and array element Type definitions, and verify tests cover valid constraints, parent-violating constraints, and missing array element Types
 - [ ] 2.3 Implement the TypedValue envelope and full-ancestry value validator, and verify equal raw values retain distinct nominal identities and invalid declared values are rejected
-- [ ] 2.4 Implement canonical date and Function-reference transport codecs, and verify round-trip tests preserve ISO instants and definition hashes while rejecting JavaScript closures
-- [ ] 2.5 Implement explicit target-Type construction through Code Node outputs, and verify unrelated Types cannot pass directly but a validated explicit conversion can produce the target Type
+- [ ] 2.4 Implement `any` value transfer, and verify values entering an `any` port keep their Type identity while values leaving `any` are validated against and relabeled as the target Type, failing the receiving Node on mismatch
+- [ ] 2.5 Implement canonical date and Function-reference transport codecs, and verify round-trip tests preserve ISO instants and definition hashes while rejecting JavaScript closures
+- [ ] 2.6 Implement explicit target-Type construction through Code Node outputs, and verify unrelated Types cannot pass directly but a validated explicit conversion can produce the target Type
 
 ## 3. Multi-Port Definition Model
 

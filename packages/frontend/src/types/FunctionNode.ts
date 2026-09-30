@@ -1,7 +1,7 @@
 export interface FunctionPort {
-  // Immutable handle ID; edges reference this, so renaming `name` keeps connections intact.
   id: string
   name: string
+  type: PrimitiveType
 }
 
 export interface FunctionNode {
@@ -11,16 +11,4 @@ export interface FunctionNode {
   code?: string
 }
 
-type DefinitionType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'any';
-
-interface InputDefinition {
-  name: string
-  type: DefinitionType
-  required: boolean
-  defaultValue?: unknown
-}
-
-interface OutputDefinition {
-  name: string
-  type: DefinitionType
-}
+type PrimitiveType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'date' | 'function' | 'any';

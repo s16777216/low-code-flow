@@ -36,10 +36,10 @@ describe('FunctionNode', () => {
   const data: FunctionNodeData = {
     label: 'fn',
     inputs: [
-      { id: 'in-a', name: 'a' },
-      { id: 'in-b', name: 'b' },
+      { id: 'in-a', name: 'a', type: 'number' },
+      { id: 'in-b', name: 'b', type: 'number' },
     ],
-    outputs: [{ id: 'out-sum', name: 'sum' }],
+    outputs: [{ id: 'out-sum', name: 'sum', type: 'number' }],
   }
 
   it('renders inputs as targets and outputs as sources', async () => {

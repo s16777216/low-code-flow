@@ -84,8 +84,9 @@ system:number
 system:date
 system:function
 system:object
-system:bool
+system:boolean
 system:array
+system:any
 ```
 
 Project manifest 不得宣告 `system:*` ID。一般 reference 僅包含 `assetId`；resolver 先檢查 reserved namespace，否則只查 active Project Registry。資料模型不預留 `projectId` 或 `packageId` 欄位，以免未實作的跨 scope resolution 滲入 POC。

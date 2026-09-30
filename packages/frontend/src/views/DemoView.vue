@@ -1,15 +1,5 @@
 <template>
-  <VueFlow :nodes="nodes" :edges="edges">
-    <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
-    <template #node-special="specialNodeProps">
-      <SpecialNode v-bind="specialNodeProps" />
-    </template>
-
-    <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
-    <template #edge-special="specialEdgeProps">
-      <SpecialEdge v-bind="specialEdgeProps" />
-    </template>
-
+  <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init>
     <template #node-function="functionNodeProps">
       <FunctionNode v-bind="functionNodeProps" />
     </template>
@@ -25,101 +15,106 @@ import { VueFlow } from '@vue-flow/core'
 import { MiniMap } from '@vue-flow/minimap'
 import { Controls } from '@vue-flow/controls'
 
-// these components are only shown as examples of how to use a custom node or edge
-// you can find many examples of how to create these custom components in the examples page of the docs
-import SpecialNode from '@/components/SpecialNode.vue'
-import SpecialEdge from '@/components/SpecialEdge.vue'
 import FunctionNode from '@/components/FunctionNode.vue'
 import type { FunctionNode as FunctionNodeType } from '@/types/FunctionNode'
 
-// these are our nodes
+// Sample order-checkout flow: fan-out from fetch-order, join at apply-discount,
+// and an `any` input on log-result.
 const nodes = ref<Node<FunctionNodeType>[]>([
-  // an input node, specified by using `type: 'input'`
   {
-    id: '1',
-    type: 'input',
-    position: { x: 250, y: 5 },
-    // all nodes can have a data object containing any data you want to pass to the node
-    // a label can property can be used for default nodes
-    data: { label: 'Node 1' },
-  },
-
-  // default node, you can omit `type: 'default'` as it's the fallback type
-  {
-    id: '2',
-    position: { x: 100, y: 100 },
-    data: { label: 'Node 2' },
-  },
-
-  // An output node, specified by using `type: 'output'`
-  {
-    id: '3',
-    type: 'output',
-    position: { x: 400, y: 200 },
-    data: { label: 'Node 3' },
-  },
-
-  // this is a custom node
-  // we set it by using a custom type name we choose, in this example `special`
-  // the name can be freely chosen, there are no restrictions as long as it's a string
-  {
-    id: '4',
-    type: 'special', // <-- this is the custom node type name
-    position: { x: 400, y: 200 },
-    data: {
-      label: 'Node 4',
-    },
-  },
-  {
-    id: '5',
+    id: 'fetch-order',
     type: 'function',
-    position: { x: 400, y: 200 },
+    position: { x: 0, y: 150 },
     data: {
-      label: 'Node 5',
-      inputs: [
-        { id: 'in-1', name: 'input1' },
-        { id: 'in-2', name: 'input2' },
-        { id: 'in-3', name: 'input3' },
-      ],
+      label: 'Fetch Order',
+      inputs: [{ id: 'order-id', name: 'orderId', type: 'string' }],
       outputs: [
-        { id: 'out-1', name: 'output1' },
-        { id: 'out-2', name: 'output2' },
+        { id: 'order', name: 'order', type: 'object' },
+        { id: 'customer-id', name: 'customerId', type: 'string' },
       ],
     },
-  }
-])
-
-// these are our edges
-const edges = ref<Edge[]>([
-  // default bezier edge
-  // consists of an edge id, source node id and target node id
-  {
-    id: 'e1->2',
-    source: '1',
-    target: '2',
   },
-
-  // set `animated: true` to create an animated edge path
   {
-    id: 'e2->3',
-    source: '2',
-    target: '3',
-    animated: true,
-  },
-
-  // a custom edge, specified by using a custom type name
-  // we choose `type: 'special'` for this example
-  {
-    id: 'e3->4',
-    type: 'special',
-    source: '3',
-    target: '4',
-
-    // all edges can have a data object containing any data you want to pass to the edge
+    id: 'calc-total',
+    type: 'function',
+    position: { x: 300, y: 0 },
     data: {
-      hello: 'world',
-    }
+      label: 'Calc Total',
+      inputs: [{ id: 'order', name: 'order', type: 'object' }],
+      outputs: [{ id: 'total', name: 'total', type: 'number' }],
+    },
+  },
+  {
+    id: 'fetch-customer',
+    type: 'function',
+    position: { x: 300, y: 300 },
+    data: {
+      label: 'Fetch Customer',
+      inputs: [{ id: 'customer-id', name: 'customerId', type: 'string' }],
+      outputs: [{ id: 'customer', name: 'customer', type: 'object' }],
+    },
+  },
+  {
+    id: 'apply-discount',
+    type: 'function',
+    position: { x: 600, y: 150 },
+    data: {
+      label: 'Apply Discount',
+      inputs: [
+        { id: 'total', name: 'total', type: 'number' },
+        { id: 'customer', name: 'customer', type: 'object' },
+      ],
+      outputs: [{ id: 'final-total', name: 'finalTotal', type: 'number' }],
+    },
+  },
+  {
+    id: 'log-result',
+    type: 'function',
+    position: { x: 900, y: 150 },
+    data: {
+      label: 'Log Result',
+      inputs: [{ id: 'value', name: 'value', type: 'any' }],
+      outputs: [],
+    },
   },
 ])
 
+// Edges connect specific ports: sourceHandle / targetHandle are port IDs.
+const edges = ref<Edge[]>([
+  {
+    id: 'fetch-order.order->calc-total.order',
+    source: 'fetch-order',
+    sourceHandle: 'order',
+    target: 'calc-total',
+    targetHandle: 'order',
+  },
+  {
+    id: 'fetch-order.customer-id->fetch-customer.customer-id',
+    source: 'fetch-order',
+    sourceHandle: 'customer-id',
+    target: 'fetch-customer',
+    targetHandle: 'customer-id',
+  },
+  {
+    id: 'calc-total.total->apply-discount.total',
+    source: 'calc-total',
+    sourceHandle: 'total',
+    target: 'apply-discount',
+    targetHandle: 'total',
+  },
+  {
+    id: 'fetch-customer.customer->apply-discount.customer',
+    source: 'fetch-customer',
+    sourceHandle: 'customer',
+    target: 'apply-discount',
+    targetHandle: 'customer',
+  },
+  {
+    id: 'apply-discount.final-total->log-result.value',
+    source: 'apply-discount',
+    sourceHandle: 'final-total',
+    target: 'log-result',
+    targetHandle: 'value',
+  },
+])
 </script>

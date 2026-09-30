@@ -4,8 +4,9 @@
 
 ## What Changes
 
-- 新增獨立的 `Type` domain concept；系統提供 `string`、`number`、`date`、`function`、`object`、`bool`、`array` 基礎型別，使用者型別必須直接或間接繼承其中之一。
+- 新增獨立的 `Type` domain concept；系統提供 `string`、`number`、`date`、`function`、`object`、`boolean`、`array`、`any` 基礎型別，使用者型別必須直接或間接繼承 `any` 以外的其中之一。
 - 採 nominal typing：兩個型別即使資料結構相同，也不因此相容；只有相同型別，或來源型別繼承目標型別時，資料才能直接傳遞。
+- `any` 是唯一例外：任何型別都可傳入 `any`，`any` 也可傳入任何型別；後者於執行期依目標型別驗證 value。
 - Type 除了 identity 與 inheritance 關係，也定義 runtime value validation 所需的資料形狀及限制。
 - Function 與 Node 改用多個具名 Input / Output Ports；每個 Port 以 immutable ID 識別並引用一個 Type。
 - DAG Edge 改為連接特定 Output Port 與 Input Port，並依兩端 Type 的繼承關係驗證連線是否合法。

@@ -5,7 +5,7 @@
 ## ADDED Requirements
 
 ### Requirement: System base types
-系統 SHALL 提供 immutable 的 `string`、`number`、`date`、`function`、`object`、`bool` 與 `array` 基礎型別。每個使用者定義型別 MUST 直接或間接繼承一個系統基礎型別。
+系統 SHALL 提供 immutable 的 `string`、`number`、`date`、`function`、`object`、`boolean`、`array` 與 `any` 基礎型別。每個使用者定義型別 MUST 直接或間接繼承 `any` 以外的一個系統基礎型別；`any` MUST NOT 作為任何 Type 的 parent。
 
 #### Scenario: Create a type from a base type
 - **WHEN** 使用者建立 `UserId` 並指定其 parent 為 `string`
@@ -13,6 +13,10 @@
 
 #### Scenario: Reject a type without a base ancestry
 - **WHEN** 使用者建立一個無 parent 且不是系統基礎型別的 Type
+- **THEN** 系統拒絕該 Type definition
+
+#### Scenario: Reject a type inheriting any
+- **WHEN** 使用者建立 `Payload` 並指定其 parent 為 `any`
 - **THEN** 系統拒絕該 Type definition
 
 #### Scenario: Prevent changes to system base types
@@ -37,6 +41,8 @@
 ### Requirement: Nominal assignability
 系統 SHALL 僅在來源 Type 與目標 Type 相同，或來源 Type 是目標 Type 的 descendant 時，允許 Typed Value 直接傳遞。系統 MUST NOT 以資料結構相同作為 assignability 依據。
 
+`any` 是唯一例外：來源或目標任一方為 `any` 時，系統 SHALL 判定可傳遞。傳入 `any` 的 value SHALL 保留原本的 Type identity。從 `any` 傳至其他 Type 時，系統 MUST 在執行期依目標 Type 驗證 value，通過後才標記為目標 Type；驗證失敗時接收的 Node MUST 失敗並回報該 input port 的 validation error。
+
 **Schema 兼容性必須依據 nominal assignability 驗證**：
 - **合法**：
   ```text
@@ -58,6 +64,22 @@
 #### Scenario: Reject structurally identical unrelated types
 - **WHEN** `UserId` 與 `OrderId` 都繼承 `string`，但彼此沒有繼承關係
 - **THEN** 系統拒絕 `UserId` 與 `OrderId` 之間的直接傳遞
+
+#### Scenario: Pass any type into any
+- **WHEN** 來源 Type 是 `UserId`、目標 Type 是 `any`
+- **THEN** 系統判定來源可傳遞至目標，且 value 保留 `UserId` Type identity
+
+#### Scenario: Pass any into a specific type
+- **WHEN** 來源 Type 是 `any`、目標 Type 是 `UserId`
+- **THEN** 系統於設計期判定來源可傳遞至目標，並於執行期依 `UserId` 驗證 value
+
+#### Scenario: Accept a valid value leaving any
+- **WHEN** 執行期從 `any` port 傳至 `UserId` input port 的 value 符合 `UserId` 所有限制
+- **THEN** 接收的 Node 取得 Type identity 為 `UserId` 的 value
+
+#### Scenario: Reject an invalid value leaving any
+- **WHEN** 執行期從 `any` port 傳至 `UserId` input port 的 value 是 number
+- **THEN** 接收的 Node 失敗，並回報該 input port 的 validation error
 
 ### Requirement: Type definition constraints
 Type definition SHALL 依其 root type 定義可驗證的資料限制。Object subtype MAY 新增 properties，但 MUST NOT 移除、放寬或以不相容 Type 覆寫 inherited properties。Array subtype SHALL 定義 element Type。Primitive subtype MAY 增加不違反 parent 的收窄限制。

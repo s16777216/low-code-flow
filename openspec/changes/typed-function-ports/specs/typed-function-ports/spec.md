@@ -48,8 +48,12 @@ Function 與可執行 Node SHALL 支援零個或多個具名 input ports 與 out
 - **WHEN** source output Type 是 target input Type 的相同 Type 或 descendant
 - **THEN** 系統接受該 Edge
 
+#### Scenario: Connect ports through any
+- **WHEN** source output Type 或 target input Type 其中之一是 `any`
+- **THEN** 系統接受該 Edge；若 source 是 `any` 而 target 不是，該 Edge 的 value 於執行期依 target Type 驗證
+
 #### Scenario: Reject incompatible ports
-- **WHEN** source output Type 與 target input Type 相同且不存在 descendant-to-ancestor 關係
+- **WHEN** source output Type 與 target input Type 不同、不存在 descendant-to-ancestor 關係，且兩者皆不是 `any`
 - **THEN** 系統拒絕該 Edge 並回報兩端 Type 不相容
 
 #### Scenario: Reject an edge without valid ports
