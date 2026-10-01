@@ -51,7 +51,7 @@ describe('FunctionNode', () => {
     wrapper.unmount()
   })
 
-  it('uses the stable port id as handle id and shows the port name', async () => {
+  it('uses the stable port id as handle id and shows the port name and type', async () => {
     const wrapper = mountFunctionNode(data)
     await flush()
 
@@ -61,7 +61,11 @@ describe('FunctionNode', () => {
       'in-b',
       'out-sum',
     ])
-    expect(handles.map((handle) => handle.text())).toEqual(['a', 'b', 'sum'])
+    expect(handles.map((handle) => handle.text())).toEqual([
+      'a : number',
+      'b : number',
+      'sum : number',
+    ])
     wrapper.unmount()
   })
 })
