@@ -18,13 +18,7 @@ const outputPorts = computed(() => props.data.outputs || [])
     </div>
     <div class="node-function-body">
       <div class="handles-container">
-        <Handle
-          v-for="input in inputPorts"
-          :key="input.id"
-          :id="input.id"
-          type="target"
-          :position="Position.Left"
-        >
+        <Handle v-for="input in inputPorts" :key="input.id" :id="input.id" type="target" :position="Position.Left">
           <span class="input-handle-label"> {{ input.name }} : {{ input.type }} </span>
         </Handle>
       </div>
@@ -32,13 +26,7 @@ const outputPorts = computed(() => props.data.outputs || [])
         <CodeIcon :size="44" />
       </div>
       <div class="handles-container">
-        <Handle
-          v-for="output in outputPorts"
-          :key="output.id"
-          :id="output.id"
-          type="source"
-          :position="Position.Right"
-        >
+        <Handle v-for="output in outputPorts" :key="output.id" :id="output.id" type="source" :position="Position.Right">
           <span class="output-handle-label"> {{ output.name }} : {{ output.type }} </span>
         </Handle>
       </div>
@@ -79,6 +67,9 @@ const outputPorts = computed(() => props.data.outputs || [])
 
 .node-function-icon {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .handles-container {
