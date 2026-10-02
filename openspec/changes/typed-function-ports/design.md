@@ -208,4 +208,6 @@ Type、Function 與 Code definitions 的 durable source 不由本 change 決定�
 
 目前無 production definitions 或 Execution database，因此不需要 database migration。實作前先完成獨立的 `file-driven-projects` design，使 Project Asset Registry boundary 可用；之後依序建立 Type model、multi-port definitions、Runner protocol、in-memory execution registry 與 editor ports。在 multi-port model 完整可執行前不保留舊單一 Object contract 的相容模式。
 
+Editor UI（port Type 標示、相容性 highlighting、`any` Edge 標記、Inspector 等）依賴 `add-ui-package` change：先完成該 change，再以其 Ui 元件、樣式規格與 domain tokens（如 `type-*` 色彩）實作，而不是在 `frontend` 內另寫樣式。
+
 若開發期間已有舊格式 fixtures，可提供一次性的 fixture converter：將舊 Input Object 與 Output Object 分別建立單一 `input`／`output` ports，並把 Node-level edges 轉成相應 port edges；無法推導 Type 的 fixture 必須人工指定。Rollback 以回復 definitions 與 runtime code 至 change 前版本進行，所有 ephemeral executions 可直接捨棄。
