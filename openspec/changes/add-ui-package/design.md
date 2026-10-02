@@ -159,6 +159,8 @@
 
 `frontend` 的 `@theme` 出現在 `ui` 規格之後，同名變數後者覆寫前者；新名稱則自動產生 utilities。Domain tokens（`type-*`、`port-*`、`execution-*`）只能出現在這裡。
 
+**覆寫規格內的色彩 token 時，light 與 dark 都要各覆寫一次。** `ui` 的 dark 值寫在 `@layer base`，順序晚於 `@theme` 所在的 `theme` layer，因此只覆寫 `@theme` 時，dark mode 仍會使用 `ui` 的值（以覆寫 `--color-accent` 實測：light 變了、dark 沒變）。Dark 覆寫須與 `ui` 一樣寫在 `@layer base` 的 `prefers-color-scheme: dark` 區塊內，且出現在 `ui` 規格之後。此限制只影響「覆寫既有色彩 token」；新增的 domain tokens 本來就同時定義兩組值。
+
 `base.css` 的 reset 與 Tailwind preflight 重複，予以移除；`body` 字型、背景、文字色改寫在 `@layer base`，以 tokens 表達。
 
 ### 7. Cascade layers 與 Vue Flow
@@ -183,7 +185,7 @@ Tailwind v4 將 preflight 放在 `@layer base`、utilities 放在 `@layer utilit
 | `UiTooltip` | Reka `Tooltip*` | `content` 或 `#content` slot、`side`、`delay`；預設 collision padding |
 | `UiTooltipProvider` | Reka `TooltipProvider` | 由 app root 包一次，統一 delay 行為 |
 | `UiButton` | 自建 | `variant: primary \| secondary \| ghost \| danger`、`disabled`、`type` 預設 `button`；以 `focus-visible:` 顯示 focus ring |
-| `UiBadge` | 自建 | `variant: neutral \| info \| success \| warning \| danger` |
+| `UiBadge` | 自建 | `variant: neutral \| outline \| info \| success \| warning \| danger`；`outline` 只有框線，邊框與文字色來自 `currentColor`，供 application 以 `text-*` 指定顏色（如 Type 顏色），避免與 variant 內建色彩 utility 競爭 |
 | `UiBanner` | 自建 | 同 variants；warning／danger 使用 `role="alert"`，其餘 `role="status"` |
 | `UiCollapsible` | 自建 | `v-model:open`；trigger 為 `<button>`，設定 `aria-expanded`、`aria-controls` |
 

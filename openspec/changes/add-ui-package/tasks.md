@@ -17,9 +17,9 @@
 
 - [x] 2.1 在 `frontend` 安裝 `tailwindcss` 與 `@tailwindcss/vite`，於 `vite.config.ts` 加入 plugin，`main.css` 加入 `@import "tailwindcss"`
 - [x] 2.2 在 `main.css` 最前面宣告 `@layer theme, base, vendor, components, utilities;`，並將三個 Vue Flow CSS import 移入 `vendor` layer
-- [ ] 2.3 驗證在 Vue Flow 元素上使用與其預設樣式衝突的 utility 時，utility 生效
+- [x] 2.3 驗證在 Vue Flow 元素上使用與其預設樣式衝突的 utility 時，utility 生效
 - [x] 2.4 在 `frontend` 與 `ui` 的 prettier 設定加入 `prettier-plugin-tailwindcss`
-- [ ] 2.5 手動檢查 preflight 對 DemoView 中 edges、handles、controls、minimap 沒有造成破版
+- [x] 2.5 手動檢查 preflight 對 DemoView 中 edges、handles、controls、minimap 沒有造成破版
 
 ## 3. 樣式規格（ui）
 
@@ -31,8 +31,8 @@
 
 - [x] 4.1 在 `main.css` 新增 `@theme` 區塊，加入第一批 domain tokens（`--color-type-*` 對應各 system root kind）及其 dark 值
 - [x] 4.2 在 `main.css` 的 `@layer base` 將 Vue Flow 的 `--vf-*` 變數對應到 tokens
-- [ ] 4.3 驗證覆寫：暫時覆寫 `--color-accent`，確認 `ui` 元件與 `frontend` 元件都改變顏色且 `ui` source 未修改，然後還原
-- [ ] 4.4 驗證擴充：確認 `bg-type-string` 等 utility 可用且隨 dark mode 切換
+- [x] 4.3 驗證覆寫：暫時覆寫 `--color-accent`（light 與 dark 各一次），確認 `ui` 元件與 `frontend` 元件都改變顏色且 `ui` source 未修改，然後還原
+- [x] 4.4 驗證擴充：確認 `text-type-string` 等 `type-*` utility 可用且隨 dark mode 切換
 
 ## 5. Canvas 元件改用 Tokens
 
@@ -40,7 +40,7 @@
 - [x] 5.2 將 `DefaultEdge.vue` 的色彩改用 tokens；驗證元件中不再有 hardcoded 色彩值
 - [x] 5.3 確認既有 `FunctionNode` unit test 仍通過
 
-Sections 0–5 verification (2026-10-02): root `npm test` (frontend 14 tests, ui 3 tests), `npm run lint`, and `npm run type-check` pass. Frontend production build passes. Workspace link and single Vue/Lucide versions verified. Deliberate UI → frontend imports fail ESLint; deep imports fail with `ERR_PACKAGE_PATH_NOT_EXPORTED`; an intentional UI source type error fails frontend type-check (probe removed). Tailwind compilation verifies domain utilities, dark overrides, vendor layering, UI source registration, and default palette removal. Items 2.3, 2.5, 4.3, and 4.4 remain unchecked pending browser verification: this worker's browser inventory is empty. No commit was created, per assignment.
+Sections 0–5 verification (2026-10-02): root `npm test` (frontend 14 tests, ui 3 tests), `npm run lint`, and `npm run type-check` pass. Frontend production build passes. Workspace link and single Vue/Lucide versions verified. Deliberate UI → frontend imports fail ESLint; deep imports fail with `ERR_PACKAGE_PATH_NOT_EXPORTED`; an intentional UI source type error fails frontend type-check (probe removed). Tailwind compilation verifies domain utilities, dark overrides, vendor layering, UI source registration, and default palette removal. Items 2.3, 2.5, 4.3, and 4.4 were verified afterwards in headless Chrome (2026-10-02): in the production build, `bg-danger` overrides vendor-layer backgrounds on `.vue-flow__node-default` and `.vue-flow__controls-button`; 7 nodes, 5 edges, 16 handles, minimap (7 nodes) and 4 controls buttons render in light and dark with no layout breakage (handles measure 20px because fit-view zoom is 1.25 on 16px CSS); all 8 `text-type-*` utilities resolve to their light and dark token values; overriding `--color-accent` changes the UI primary button while `packages/ui` stays untouched, but dark mode needs a second override in `@layer base` (see design.md decision 6).
 
 ## 6. 互動元件（Reka UI 基礎）
 
@@ -62,9 +62,11 @@ Sections 0–5 verification (2026-10-02): root `npm test` (frontend 14 tests, ui
 - [x] 8.1 在 `frontend` 的 `App.vue` 掛上 `UiTooltipProvider`
 - [x] 8.2 在 `DemoView` 中為 Function Node 的 port label 加上 `UiTooltip`（顯示 port 名稱與 Type，並以 `type-*` token 上色的 `UiBadge` 呈現 Type），並以 `UiButton` 加入一個示範 `UiDialog`（觸發按鈕與 footer 動作都使用 `UiButton`，關閉鈕使用 lucide icon）
 - [x] 8.3 執行 `frontend` production build，驗證只出現在 `ui` 元件的 utilities 存在於輸出 CSS，且 `bg-red-500` 等預設色盤 utility 不存在；若 `@source ".."` 未生效，改在 `main.css` 宣告 `@source` 並更新 design.md
-- [ ] 8.4 手動驗證：dev server 執行中修改 `ui` 元件的 template 或 utilities，`frontend` 不需重啟即反映變更
-- [ ] 8.5 手動驗證：靠近 viewport 邊緣的 port tooltip 會翻轉或位移且完整顯示；在 canvas 內觸發的 Dialog 不被裁切或遮蓋，且位於 controls 與 minimap 之上
-- [ ] 8.6 手動驗證：切換系統 dark mode 後，nodes、edges、controls、minimap、Dialog、Tooltip、Badge、Banner 皆正確變色
+- [x] 8.4 手動驗證：dev server 執行中修改 `ui` 元件的 template 或 utilities，`frontend` 不需重啟即反映變更
+- [x] 8.5 手動驗證：靠近 viewport 邊緣的 port tooltip 會翻轉或位移且完整顯示；在 canvas 內觸發的 Dialog 不被裁切或遮蓋，且位於 controls 與 minimap 之上
+- [x] 8.6 手動驗證：切換系統 dark mode 後，nodes、edges、controls、minimap、Dialog、Tooltip、Badge、Banner 皆正確變色
 - [x] 8.7 從 root 執行 `lint`、`type-check`、`test` 皆通過，並執行 `openspec validate add-ui-package --strict`
 
 Section 6–8 verification (2026-10-02): `ui/src/index.ts` now exports all seven components and their public props types; a deliberate wrong-variant prop on `UiButton` in a frontend probe file failed `vue-tsc --build` as expected, then the probe was removed and type-check was re-confirmed clean. `App.vue` mounts `UiTooltipProvider` once at the root. `FunctionNode.vue` wraps each port label in `UiTooltip`, showing the port name plus a `UiBadge` colored via a static `PrimitiveType -> class` map (`text-type-*`/`border-type-*`, required for Tailwind's static content scan — a template-literal class name would not have been picked up). `DemoView.vue` adds a `UiButton`-triggered `UiDialog` (Panel overlay) with `UiButton` footer actions; the dialog's close button uses `UiDialog`'s built-in lucide `X` icon. `FunctionNode.spec.ts` was updated to mount under `UiTooltipProvider` (required by `TooltipRoot`) and to assert the new handle text (name only, type moved into the tooltip). Root `npm run lint`, `npm run type-check`, and `npm run test` all pass (ui: 31 tests; frontend: 14 tests). `frontend` production build succeeds; inspecting the built CSS confirms `text-type-*`/`border-type-*` and ui-only utilities (e.g. Dialog's `max-h-[calc(100vh-2rem)]`, Button's `focus-visible:outline-accent`) are present, and no default-palette utility (`bg-red-500` or any `bg|text|border-(red|blue|green|gray|slate|zinc|yellow|purple|pink|indigo)-*`) appears — `ui`'s own `@source ".."` is sufficient; no change to `main.css` or design.md was needed. `openspec validate add-ui-package --strict` passes. `npm run dev` starts cleanly with no errors. 8.4/8.5/8.6 remain unchecked — they require interactive browser verification (HMR, tooltip viewport-edge collision, dark-mode switching) that this worker could not perform; the user should verify these manually.
+
+Sections 8.4–8.6 verification (2026-10-02, headless Chrome against the Vite dev server): editing `UiButton.vue` to use a utility that appeared nowhere else (`bg-info`) updated the rendered button in ~0.1 s without a page reload, and restoring the file reverted it the same way. A port tooltip requested on the left side at the viewport edge flipped to the right and stayed fully inside the viewport. The Dialog overlay covered the minimap and controls, Escape closed it and returned focus to the trigger, and the dialog stayed inside the viewport. A temporary gallery (removed afterwards) rendered every Button/Badge/Banner/Collapsible/Dialog variant in light and dark: all text/background pairs measured at contrast ≥ 4.5 (min 4.76 light, 6.91 dark). This surfaced one defect, fixed here: the Dialog overlay used `bg-fg/50`, which in dark mode lightened the page; it now uses a dedicated `--color-overlay` token with light and dark values.
