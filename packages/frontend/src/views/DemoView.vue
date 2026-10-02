@@ -1,7 +1,10 @@
 <template>
-  <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init>
+  <VueFlow :nodes="nodes" :edges="edges" :is-valid-connection="isValidConnection" fit-view-on-init>
     <template #node-function="functionNodeProps">
       <FunctionNode v-bind="functionNodeProps" />
+    </template>
+    <template #edge-default="defaultEdgeProps">
+      <DefaultEdge v-bind="defaultEdgeProps" />
     </template>
 
     <MiniMap pannable zoomable />
@@ -10,13 +13,27 @@
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue'
-import type { Node, Edge } from '@vue-flow/core'
-import { VueFlow } from '@vue-flow/core'
+import type { Node, Edge, ValidConnectionFunc } from '@vue-flow/core'
+import { useVueFlow, VueFlow } from '@vue-flow/core'
 import { MiniMap } from '@vue-flow/minimap'
 import { Controls } from '@vue-flow/controls'
 
+import DefaultEdge from '@/components/DefaultEdge.vue'
 import FunctionNode from '@/components/FunctionNode.vue'
 import type { FunctionNode as FunctionNodeType } from '@/types/FunctionNode'
+import { checkConnection } from '@/domain/connection'
+
+const { onConnect, addEdges } = useVueFlow()
+
+const isValidConnection: ValidConnectionFunc = (connection, { nodes, edges }) =>
+  checkConnection(connection, { nodes, edges }).valid
+
+onConnect((connection) => {
+  addEdges({
+    ...connection,
+    id: `${connection.source}.${connection.sourceHandle}->${connection.target}.${connection.targetHandle}`,
+  })
+})
 
 // Sample order-checkout flow: fan-out from fetch-order, join at apply-discount,
 // and an `any` input on log-result.
@@ -74,6 +91,33 @@ const nodes = ref<Node<FunctionNodeType>[]>([
     data: {
       label: 'Log Result',
       inputs: [{ id: 'value', name: 'value', type: 'any' }],
+      outputs: [],
+    },
+  },
+  // Unconnected nodes left free for trying out connections in the editor.
+  {
+    id: 'format-receipt',
+    type: 'function',
+    position: { x: 600, y: 450 },
+    data: {
+      label: 'Format Receipt',
+      inputs: [
+        { id: 'order', name: 'order', type: 'object' },
+        { id: 'final-total', name: 'finalTotal', type: 'number' },
+      ],
+      outputs: [{ id: 'receipt', name: 'receipt', type: 'string' }],
+    },
+  },
+  {
+    id: 'send-email',
+    type: 'function',
+    position: { x: 900, y: 450 },
+    data: {
+      label: 'Send Email',
+      inputs: [
+        { id: 'to', name: 'to', type: 'string' },
+        { id: 'body', name: 'body', type: 'string' },
+      ],
       outputs: [],
     },
   },

@@ -12,30 +12,27 @@ const outputPorts = computed(() => props.data.outputs || [])
 </script>
 
 <template>
-  <div class="vue-flow__node-function">
-    <div class="node-function-container">
-      <div class="node-function-title">
-        {{ data.label }}
+  <div class="node-function-container" :class="{ 'selected': selected }">
+    <div class="node-function-title">
+      {{ data.label }}
+    </div>
+    <div class="node-function-body">
+      <div class="handles-container">
+        <Handle v-for="input in inputPorts" :key="input.id" :id="input.id" type="target" :position="Position.Left">
+          <span class="input-handle-label">
+            {{ input.name }} : {{ input.type }}
+          </span>
+        </Handle>
       </div>
-      <div class="node-function-body">
-        <div class="handles-container">
-          <Handle v-for="input in inputPorts" :key="input.id" :id="input.id" type="target" :position="Position.Left">
-            <span class="input-handle-label">
-              {{ input.name }} : {{ input.type }}
-            </span>
-          </Handle>
-        </div>
-        <div class="node-function-icon">
-          <CodeIcon :size="44" />
-        </div>
-        <div class="handles-container">
-          <Handle v-for="output in outputPorts" :key="output.id" :id="output.id" type="source"
-            :position="Position.Right">
-            <span class="output-handle-label">
-              {{ output.name }} : {{ output.type }}
-            </span>
-          </Handle>
-        </div>
+      <div class="node-function-icon">
+        <CodeIcon :size="44" />
+      </div>
+      <div class="handles-container">
+        <Handle v-for="output in outputPorts" :key="output.id" :id="output.id" type="source" :position="Position.Right">
+          <span class="output-handle-label">
+            {{ output.name }} : {{ output.type }}
+          </span>
+        </Handle>
       </div>
     </div>
   </div>
@@ -57,6 +54,10 @@ const outputPorts = computed(() => props.data.outputs || [])
   display: flex;
   flex-direction: column;
   position: relative;
+}
+
+.node-function-container.selected {
+  outline: 2px solid rgb(59, 130, 246);
 }
 
 .node-function-title {

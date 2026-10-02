@@ -11,4 +11,4 @@ export interface FunctionNode {
   code?: string
 }
 
-type PrimitiveType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'date' | 'function' | 'any';
+export type PrimitiveType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'date' | 'function' | 'any';
