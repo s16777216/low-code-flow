@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type Variant = 'neutral' | 'info' | 'success' | 'warning' | 'danger'
+type Variant = 'neutral' | 'outline' | 'info' | 'success' | 'warning' | 'danger'
 
 export interface UiBadgeProps {
   variant?: Variant
@@ -9,6 +9,7 @@ withDefaults(defineProps<UiBadgeProps>(), { variant: 'neutral' })
 
 const variantClasses: Record<Variant, string> = {
   neutral: 'border-border bg-bg-mute text-fg',
+  outline: '',
   info: 'border-info text-info',
   success: 'border-success text-success',
   warning: 'border-warning text-warning',

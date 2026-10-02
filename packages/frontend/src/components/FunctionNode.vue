@@ -13,14 +13,14 @@ const inputPorts = computed(() => props.data.inputs || [])
 const outputPorts = computed(() => props.data.outputs || [])
 
 const typeBadgeClasses: Record<PrimitiveType, string> = {
-  string: 'text-type-string border-type-string',
-  number: 'text-type-number border-type-number',
-  boolean: 'text-type-boolean border-type-boolean',
-  object: 'text-type-object border-type-object',
-  array: 'text-type-array border-type-array',
-  date: 'text-type-date border-type-date',
-  function: 'text-type-function border-type-function',
-  any: 'text-type-any border-type-any',
+  string: 'text-type-string',
+  number: 'text-type-number',
+  boolean: 'text-type-boolean',
+  object: 'text-type-object',
+  array: 'text-type-array',
+  date: 'text-type-date',
+  function: 'text-type-function',
+  any: 'text-type-any',
 }
 </script>
 
@@ -37,7 +37,7 @@ const typeBadgeClasses: Record<PrimitiveType, string> = {
             <template #content>
               <span class="flex items-center gap-1.5">
                 {{ input.name }}
-                <UiBadge :class="typeBadgeClasses[input.type]">{{ input.type }}</UiBadge>
+                <UiBadge variant="outline" :class="typeBadgeClasses[input.type]">{{ input.type }}</UiBadge>
               </span>
             </template>
           </UiTooltip>
@@ -53,7 +53,7 @@ const typeBadgeClasses: Record<PrimitiveType, string> = {
             <template #content>
               <span class="flex items-center gap-1.5">
                 {{ output.name }}
-                <UiBadge :class="typeBadgeClasses[output.type]">{{ output.type }}</UiBadge>
+                <UiBadge variant="outline" :class="typeBadgeClasses[output.type]">{{ output.type }}</UiBadge>
               </span>
             </template>
           </UiTooltip>

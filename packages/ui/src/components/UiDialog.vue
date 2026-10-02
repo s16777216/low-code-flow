@@ -29,7 +29,7 @@ function onPointerDownOutside(event: Event) {
   <DialogRoot v-model:open="open">
     <DialogTrigger v-if="$slots.trigger" as-child><slot name="trigger" /></DialogTrigger>
     <DialogPortal>
-      <DialogOverlay class="inset-0 fixed z-(--z-overlay) bg-fg/50" />
+      <DialogOverlay class="inset-0 fixed z-(--z-overlay) bg-overlay" />
       <DialogContent
         class="p-6 shadow-lg fixed top-1/2 left-1/2 z-(--z-overlay) max-h-[calc(100vh-2rem)] w-[min(32rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-bg text-fg focus:outline-none"
         @pointer-down-outside="onPointerDownOutside"

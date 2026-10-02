@@ -14,4 +14,16 @@ describe('UiBadge', () => {
     expect(wrapper.classes()).toContain(className)
     expect(wrapper.text()).toBe('Label')
   })
+
+  it('leaves color to the caller for the outline variant', () => {
+    const wrapper = mount(UiBadge, {
+      props: { variant: 'outline' },
+      attrs: { class: 'text-danger' },
+      slots: { default: 'Label' },
+    })
+    expect(wrapper.classes()).toContain('border')
+    expect(wrapper.classes()).toContain('text-danger')
+    expect(wrapper.classes()).not.toContain('text-fg')
+    expect(wrapper.classes().some((name) => name.startsWith('border-'))).toBe(false)
+  })
 })
