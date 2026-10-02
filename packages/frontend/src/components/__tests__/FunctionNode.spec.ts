@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { h } from 'vue'
+import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { VueFlow, type NodeProps } from '@vue-flow/core'
+import { UiTooltipProvider } from '@low-code-flow/ui'
 
 import FunctionNode from '../FunctionNode.vue'
 import type { FunctionNode as FunctionNodeData } from '@/types/FunctionNode'
@@ -17,15 +18,20 @@ vi.stubGlobal(
 )
 
 function mountFunctionNode(data: FunctionNodeData) {
-  return mount(VueFlow, {
-    props: {
-      nodes: [{ id: 'fn', type: 'function', position: { x: 0, y: 0 }, data }],
+  const Wrapper = defineComponent({
+    setup() {
+      return () =>
+        h(UiTooltipProvider, null, () =>
+          h(VueFlow, {
+            nodes: [{ id: 'fn', type: 'function', position: { x: 0, y: 0 }, data }],
+          }, {
+            'node-function': (props: NodeProps<FunctionNodeData>) => h(FunctionNode, props),
+          }),
+        )
     },
-    slots: {
-      'node-function': (props: NodeProps<FunctionNodeData>) => h(FunctionNode, props),
-    },
-    attachTo: document.body,
   })
+
+  return mount(Wrapper, { attachTo: document.body })
 }
 
 async function flush() {
@@ -61,11 +67,7 @@ describe('FunctionNode', () => {
       'in-b',
       'out-sum',
     ])
-    expect(handles.map((handle) => handle.text())).toEqual([
-      'a : number',
-      'b : number',
-      'sum : number',
-    ])
+    expect(handles.map((handle) => handle.text())).toEqual(['a', 'b', 'sum'])
     wrapper.unmount()
   })
 })

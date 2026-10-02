@@ -44,25 +44,27 @@ Sections 0–5 verification (2026-10-02): root `npm test` (frontend 14 tests, ui
 
 ## 6. 互動元件（Reka UI 基礎）
 
-- [ ] 6.1 實作 `UiDialog`（`v-model:open`、`title`、`description`、`dismissible`、default／footer slots，透過 Portal 渲染並使用 `z-(--z-overlay)`），樣式以 utilities 撰寫
-- [ ] 6.2 為 `UiDialog` 撰寫測試：開啟時焦點移入、Tab 循環不離開 Dialog、Escape 關閉並還原焦點到觸發元素、`dismissible=false` 時點擊外部不關閉、role 為 dialog 且名稱來自標題
-- [ ] 6.3 實作 `UiTooltipProvider` 與 `UiTooltip`（`content`／`#content` slot、`side`、`delay`、預設 collision padding、Portal、`z-(--z-tooltip)`）
-- [ ] 6.4 為 `UiTooltip` 撰寫測試：鍵盤 focus 時顯示、觸發元素具 `aria-describedby` 指向內容、Escape 隱藏且焦點留在觸發元素
+- [x] 6.1 實作 `UiDialog`（`v-model:open`、`title`、`description`、`dismissible`、default／footer slots，透過 Portal 渲染並使用 `z-(--z-overlay)`），樣式以 utilities 撰寫
+- [x] 6.2 為 `UiDialog` 撰寫測試：開啟時焦點移入、Tab 循環不離開 Dialog、Escape 關閉並還原焦點到觸發元素、`dismissible=false` 時點擊外部不關閉、role 為 dialog 且名稱來自標題
+- [x] 6.3 實作 `UiTooltipProvider` 與 `UiTooltip`（`content`／`#content` slot、`side`、`delay`、預設 collision padding、Portal、`z-(--z-tooltip)`）
+- [x] 6.4 為 `UiTooltip` 撰寫測試：鍵盤 focus 時顯示、觸發元素具 `aria-describedby` 指向內容、Escape 隱藏且焦點留在觸發元素
 
 ## 7. 非互動／輕量元件（自建）
 
-- [ ] 7.0 實作 `UiButton`（原生 `<button>`、primary／secondary／ghost／danger variants、`disabled`、`type` 預設 `button`、`focus-visible:` focus ring）；撰寫測試驗證 Enter／Space 觸發 click、disabled 不觸發 click、form 內預設不送出、variant 對應的 class
-- [ ] 7.1 實作 `UiBadge`，以 class map 支援 neutral、info、success、warning、danger variants；撰寫測試驗證 variant 對應的 class
-- [ ] 7.2 實作 `UiBanner`，同樣 variants，warning／danger 使用 `role="alert"`、其餘 `role="status"`；撰寫測試驗證各 variant 的 role 與 class
-- [ ] 7.3 實作 `UiCollapsible`（`v-model:open`，trigger 為 button 並設定 `aria-expanded`、`aria-controls`）；撰寫測試驗證 Enter／Space 切換與 expanded state 更新
-- [ ] 7.4 由 `ui/src/index.ts` 匯出所有元件與其 props 型別，並驗證 `frontend` 以錯誤 props 型別使用元件時 type-check 失敗
+- [x] 7.0 實作 `UiButton`（原生 `<button>`、primary／secondary／ghost／danger variants、`disabled`、`type` 預設 `button`、`focus-visible:` focus ring）；撰寫測試驗證 Enter／Space 觸發 click、disabled 不觸發 click、form 內預設不送出、variant 對應的 class
+- [x] 7.1 實作 `UiBadge`，以 class map 支援 neutral、info、success、warning、danger variants；撰寫測試驗證 variant 對應的 class
+- [x] 7.2 實作 `UiBanner`，同樣 variants，warning／danger 使用 `role="alert"`、其餘 `role="status"`；撰寫測試驗證各 variant 的 role 與 class
+- [x] 7.3 實作 `UiCollapsible`（`v-model:open`，trigger 為 button 並設定 `aria-expanded`、`aria-controls`）；撰寫測試驗證 Enter／Space 切換與 expanded state 更新
+- [x] 7.4 由 `ui/src/index.ts` 匯出所有元件與其 props 型別，並驗證 `frontend` 以錯誤 props 型別使用元件時 type-check 失敗
 
 ## 8. 整合與驗證
 
-- [ ] 8.1 在 `frontend` 的 `App.vue` 掛上 `UiTooltipProvider`
-- [ ] 8.2 在 `DemoView` 中為 Function Node 的 port label 加上 `UiTooltip`（顯示 port 名稱與 Type，並以 `type-*` token 上色的 `UiBadge` 呈現 Type），並以 `UiButton` 加入一個示範 `UiDialog`（觸發按鈕與 footer 動作都使用 `UiButton`，關閉鈕使用 lucide icon）
-- [ ] 8.3 執行 `frontend` production build，驗證只出現在 `ui` 元件的 utilities 存在於輸出 CSS，且 `bg-red-500` 等預設色盤 utility 不存在；若 `@source ".."` 未生效，改在 `main.css` 宣告 `@source` 並更新 design.md
+- [x] 8.1 在 `frontend` 的 `App.vue` 掛上 `UiTooltipProvider`
+- [x] 8.2 在 `DemoView` 中為 Function Node 的 port label 加上 `UiTooltip`（顯示 port 名稱與 Type，並以 `type-*` token 上色的 `UiBadge` 呈現 Type），並以 `UiButton` 加入一個示範 `UiDialog`（觸發按鈕與 footer 動作都使用 `UiButton`，關閉鈕使用 lucide icon）
+- [x] 8.3 執行 `frontend` production build，驗證只出現在 `ui` 元件的 utilities 存在於輸出 CSS，且 `bg-red-500` 等預設色盤 utility 不存在；若 `@source ".."` 未生效，改在 `main.css` 宣告 `@source` 並更新 design.md
 - [ ] 8.4 手動驗證：dev server 執行中修改 `ui` 元件的 template 或 utilities，`frontend` 不需重啟即反映變更
 - [ ] 8.5 手動驗證：靠近 viewport 邊緣的 port tooltip 會翻轉或位移且完整顯示；在 canvas 內觸發的 Dialog 不被裁切或遮蓋，且位於 controls 與 minimap 之上
 - [ ] 8.6 手動驗證：切換系統 dark mode 後，nodes、edges、controls、minimap、Dialog、Tooltip、Badge、Banner 皆正確變色
-- [ ] 8.7 從 root 執行 `lint`、`type-check`、`test` 皆通過，並執行 `openspec validate add-ui-package --strict`
+- [x] 8.7 從 root 執行 `lint`、`type-check`、`test` 皆通過，並執行 `openspec validate add-ui-package --strict`
+
+Section 6–8 verification (2026-10-02): `ui/src/index.ts` now exports all seven components and their public props types; a deliberate wrong-variant prop on `UiButton` in a frontend probe file failed `vue-tsc --build` as expected, then the probe was removed and type-check was re-confirmed clean. `App.vue` mounts `UiTooltipProvider` once at the root. `FunctionNode.vue` wraps each port label in `UiTooltip`, showing the port name plus a `UiBadge` colored via a static `PrimitiveType -> class` map (`text-type-*`/`border-type-*`, required for Tailwind's static content scan — a template-literal class name would not have been picked up). `DemoView.vue` adds a `UiButton`-triggered `UiDialog` (Panel overlay) with `UiButton` footer actions; the dialog's close button uses `UiDialog`'s built-in lucide `X` icon. `FunctionNode.spec.ts` was updated to mount under `UiTooltipProvider` (required by `TooltipRoot`) and to assert the new handle text (name only, type moved into the tooltip). Root `npm run lint`, `npm run type-check`, and `npm run test` all pass (ui: 31 tests; frontend: 14 tests). `frontend` production build succeeds; inspecting the built CSS confirms `text-type-*`/`border-type-*` and ui-only utilities (e.g. Dialog's `max-h-[calc(100vh-2rem)]`, Button's `focus-visible:outline-accent`) are present, and no default-palette utility (`bg-red-500` or any `bg|text|border-(red|blue|green|gray|slate|zinc|yellow|purple|pink|indigo)-*`) appears — `ui`'s own `@source ".."` is sufficient; no change to `main.css` or design.md was needed. `openspec validate add-ui-package --strict` passes. `npm run dev` starts cleanly with no errors. 8.4/8.5/8.6 remain unchecked — they require interactive browser verification (HMR, tooltip viewport-edge collision, dark-mode switching) that this worker could not perform; the user should verify these manually.

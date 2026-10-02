@@ -7,6 +7,19 @@
       <DefaultEdge v-bind="defaultEdgeProps" />
     </template>
 
+    <Panel position="top-left">
+      <UiDialog v-model:open="isDemoDialogOpen" title="Demo Dialog" description="示範 UiDialog 與 UiButton 的整合。">
+        <template #trigger>
+          <UiButton variant="secondary">Open demo dialog</UiButton>
+        </template>
+        <p>這是一個示範用的 Dialog，用來驗證 UiDialog 在 canvas 內觸發時的疊層與互動行為。</p>
+        <template #footer>
+          <UiButton variant="ghost" @click="isDemoDialogOpen = false">Cancel</UiButton>
+          <UiButton variant="primary" @click="isDemoDialogOpen = false">Confirm</UiButton>
+        </template>
+      </UiDialog>
+    </Panel>
+
     <MiniMap pannable zoomable />
     <Controls />
   </VueFlow>
@@ -14,14 +27,17 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import type { Node, Edge, ValidConnectionFunc } from '@vue-flow/core'
-import { useVueFlow, VueFlow } from '@vue-flow/core'
+import { useVueFlow, VueFlow, Panel } from '@vue-flow/core'
 import { MiniMap } from '@vue-flow/minimap'
 import { Controls } from '@vue-flow/controls'
+import { UiButton, UiDialog } from '@low-code-flow/ui'
 
 import DefaultEdge from '@/components/DefaultEdge.vue'
 import FunctionNode from '@/components/FunctionNode.vue'
 import type { FunctionNode as FunctionNodeType } from '@/types/FunctionNode'
 import { checkConnection } from '@/domain/connection'
+
+const isDemoDialogOpen = ref(false)
 
 const { onConnect, addEdges } = useVueFlow()
 
