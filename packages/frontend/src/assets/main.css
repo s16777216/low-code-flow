@@ -1,12 +1,94 @@
+@layer theme, base, vendor, components, utilities;
+
+@import 'tailwindcss';
+@import '@low-code-flow/ui/theme.css';
+@import '@vue-flow/core/dist/style.css' layer(vendor);
+@import '@vue-flow/core/dist/theme-default.css' layer(vendor);
+@import '@vue-flow/controls/dist/style.css' layer(vendor);
 @import './base.css';
 
-/* these are necessary styles for vue flow */
-@import '@vue-flow/core/dist/style.css';
+@theme {
+  --color-type-string: #15803d;
+  --color-type-number: #1d4ed8;
+  --color-type-date: #a16207;
+  --color-type-function: #7e22ce;
+  --color-type-object: #0e7490;
+  --color-type-boolean: #be185d;
+  --color-type-array: #4338ca;
+  --color-type-any: #64748b;
+}
 
-/* this contains the default theme, these are optional styles */
-@import '@vue-flow/core/dist/theme-default.css';
+@layer base {
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-type-string: #86efac;
+      --color-type-number: #93c5fd;
+      --color-type-date: #fde047;
+      --color-type-function: #d8b4fe;
+      --color-type-object: #67e8f9;
+      --color-type-boolean: #f9a8d4;
+      --color-type-array: #a5b4fc;
+      --color-type-any: #a1a1aa;
+    }
+  }
 
-@import '@vue-flow/controls/dist/style.css';
+  /* Canvas-local values take precedence over the vendor's :root defaults. */
+  :root,
+  .vue-flow {
+    --vf-node-bg: var(--color-bg);
+    --vf-node-text: var(--color-fg);
+    --vf-node-color: var(--color-border-strong);
+    --vf-connection-path: var(--color-border-strong);
+    --vf-handle: var(--color-fg-muted);
+    --vf-box-shadow: var(--color-selection);
+  }
+}
+
+@layer components {
+  /* These vendor styles have no custom-property hooks. */
+  .vue-flow__handle {
+    border-color: var(--color-bg);
+  }
+  .vue-flow__edge-path {
+    stroke: var(--color-border-strong);
+  }
+  .vue-flow__edge.selected .vue-flow__edge-path {
+    stroke: var(--color-selection);
+  }
+  .vue-flow__edge-text {
+    fill: var(--color-fg);
+  }
+  .vue-flow__edge-textbg {
+    fill: var(--color-bg);
+  }
+  .vue-flow__controls {
+    box-shadow: 0 0 2px 1px var(--color-border);
+  }
+  .vue-flow__controls-button {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    fill: currentColor;
+    border-color: var(--color-border);
+  }
+  .vue-flow__controls-button:hover {
+    background: var(--color-bg-mute);
+  }
+  .vue-flow__minimap {
+    background: var(--color-bg-soft);
+  }
+  .vue-flow__minimap-node {
+    fill: var(--color-border-strong);
+    stroke: var(--color-border);
+  }
+  .vue-flow__minimap-mask {
+    fill: color-mix(in srgb, var(--color-bg-mute) 65%, transparent);
+  }
+  .vue-flow__nodesselection-rect,
+  .vue-flow__selection {
+    background: color-mix(in srgb, var(--color-selection) 8%, transparent);
+    border-color: var(--color-selection);
+  }
+}
 
 #app {
   width: 100vw;
