@@ -49,6 +49,7 @@
 - [ ] 6.3 Enforce nominal compatibility while creating Edges and surface actionable validation messages, and verify sibling Types cannot connect while subtype-to-parent connections succeed
 - [ ] 6.4 Update Function Node and Code Node inspectors for projected signatures and multi-port code bindings, and verify saved definitions round-trip without exposing Child internals
 - [ ] 6.5 Update the execution inspector to display values, Type identities, hashes, errors, and nested executions per port while traces remain in memory, and verify it handles retained execution-time snapshots and trace eviction explicitly
+- [x] 6.6 Highlight the ports that would accept the connection being dragged (inputs when dragging an output, outputs when dragging an input) and dim the rest, and verify the highlight matches the drop validation (type, existing producer, cycle) and clears when the connection ends
 
 ## 7. End-to-End Verification
 

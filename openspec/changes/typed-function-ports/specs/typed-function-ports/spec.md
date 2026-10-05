@@ -201,3 +201,34 @@ Function validation SHALL 同時驗證 Node graph 無 cycle、所有 required po
 #### Scenario: Block execution of an invalid graph
 - **WHEN** Function 存在未連接 input 或 incompatible Edge
 - **THEN** execute request 在建立 running execution 前失敗並回報 validation errors
+
+### Requirement: Connection compatibility highlighting
+Workflow Editor SHALL 在使用者開始連線時，標示相反方向的每個 port 是否會接受該連線：從 output port 開始時標示各 input port，從 input port 開始時標示各 output port。會被接受的 port 以醒目樣式標示，其餘以弱化樣式標示。接受與否 MUST 與放開連線時的驗證結果一致，即同時考慮 nominal assignability、該 input 是否已有 producer，以及是否形成 cycle。連線結束或取消後，所有標示 MUST 清除。
+
+#### Scenario: Highlight inputs that accept the dragged output
+- **WHEN** 使用者從 `number` 類型的 output port 開始連線，且存在 `number` 與 `any` 的 input，以及 `string` 的 input
+- **THEN** `number` 與 `any` 的 input 被醒目標示，`string` 的 input 被弱化
+
+#### Scenario: Dim an input that already has a producer
+- **WHEN** 使用者開始連線，而某個型別相容的 input 已經有一條 incoming Edge
+- **THEN** 該 input 被弱化，且在其上放開連線不會建立 Edge
+
+#### Scenario: Dim inputs that would form a cycle
+- **WHEN** 使用者從某 Node 的 output 開始連線，而連到某個 input 會使 graph 形成 cycle
+- **THEN** 該 input 被弱化
+
+#### Scenario: Highlight outputs that can feed the dragged input
+- **WHEN** 使用者從 `number` 類型且尚無 producer 的 input port 開始連線，且存在 `number` 與 `string` 的 output
+- **THEN** `number` 的 output 被醒目標示，`string` 的 output 被弱化
+
+#### Scenario: Dim every output when the dragged input already has a producer
+- **WHEN** 使用者從已有 incoming Edge 的 input port 開始連線
+- **THEN** 所有 output 被弱化
+
+#### Scenario: Dim outputs of the dragged input's own Node
+- **WHEN** 使用者從某 Node 的 input port 開始連線
+- **THEN** 同一個 Node 的 output 被弱化，因為連線會形成 cycle
+
+#### Scenario: Clear the highlight when the connection ends
+- **WHEN** 使用者放開連線，無論是否建立 Edge，也無論連線從 output 或 input 開始
+- **THEN** 所有 port 回復一般樣式
