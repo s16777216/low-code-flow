@@ -67,6 +67,96 @@
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "016f12709bff30a27419e8add978a9be70f5ca1fb6738b3be6793038e0aba631"
     },
+    "openspec-apply-change": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-apply-change/SKILL.md",
+      "computedHash": "275950b2905d6d7ff21c07eb48dfad92d4629505f35802ca8312495df90ac694"
+    },
+    "openspec-archive-change": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-archive-change/SKILL.md",
+      "computedHash": "a89e7692b1e2cd85caa69c0fb2e0029e1945f230190eb228a5709a21ef1338ff"
+    },
+    "openspec-bulk-archive-change": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-bulk-archive-change/SKILL.md",
+      "computedHash": "67af810e809b9e7541709680a02cdd5f7c2d8eb77f7b6101670b6d62a6a9afd8"
+    },
+    "openspec-continue-change": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-continue-change/SKILL.md",
+      "computedHash": "9b7d263d45fe9cfe7ec9b6a768b2b5313886fbf63e996d9ef147f80cbb12dbe1"
+    },
+    "openspec-explore": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-explore/SKILL.md",
+      "computedHash": "52bfa0ff16fd4ab1f3a8015ffb937a63b28d59b47ca66fcf23ea1f11d73fbbc2"
+    },
+    "openspec-ff-change": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-ff-change/SKILL.md",
+      "computedHash": "b43de4cbc5d5b3cb0b9e9ce16a64aa5b3f7b81df4250486ffacc61e187b0dafb"
+    },
+    "openspec-grill": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-grill/SKILL.md",
+      "computedHash": "0e77b6f448c0b88b3f43617ee99ca5fcec9a8e1ea304d22d4493fc6830de71a4"
+    },
+    "openspec-new-change": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-new-change/SKILL.md",
+      "computedHash": "1607f2daa68610f1efa6a494c015edbe7a3523526d3b98990e644f4e8b776de8"
+    },
+    "openspec-onboard": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-onboard/SKILL.md",
+      "computedHash": "9a3010b35f2820bc390538c893e56ac93608c56e4e39c119bb0f2b07e4656013"
+    },
+    "openspec-propose": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-propose/SKILL.md",
+      "computedHash": "6cfe7201e80694fafbc80488a27ee23f6fc5f907a31babc741f16c8e8ce70e39"
+    },
+    "openspec-setup": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-setup/SKILL.md",
+      "computedHash": "f93f3c6cc2cda10c96cd440b924052ca7b9ee7ad6b2ffffc7e49362ed5694a61"
+    },
+    "openspec-status": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-status/SKILL.md",
+      "computedHash": "2b6dd9e8776999501cd007263bc222f6782cdaf752cc2abc2793a88ea33c5b05"
+    },
+    "openspec-sync-specs": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-sync-specs/SKILL.md",
+      "computedHash": "bcf0e6d6a251bbec73c7d846bd9673b85102a42acd1d85e4372e1ffce5caafaa"
+    },
+    "openspec-update-change": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-update-change/SKILL.md",
+      "computedHash": "f8aee1146485c4a622e82d3db93676db088be6adbd895f9961e2ad8c4c1aaf1d"
+    },
+    "openspec-verify-change": {
+      "source": "s16777216/openspec-improve",
+      "sourceType": "github",
+      "skillPath": "skills/openspec-verify-change/SKILL.md",
+      "computedHash": "e79e5d1a9143a3679ee3457d10d576159be62a7257144fa73aa5838ba8dce98d"
+    },
     "prototype": {
       "source": "mattpocock/skills",
       "sourceType": "github",
