@@ -34,6 +34,6 @@
 - Function CRUD、validation、cycle detection、execution API 與 Runner Protocol 需要改用多輸入、多輸出 typed values。
 - Workflow Editor 需要顯示可連接的 typed ports，並拒絕不符合 nominal inheritance 的連線。
 - Code Editor 與 Runner 需要依 Code Node 的 port definitions 提供輸入並驗證輸出。
-- Type 的修改會建立新的 dependency impact surface；Function definition 需要保留所引用 Type 的穩定版本或 definition hash，Execution 開始時則在 immutable in-memory snapshot 固定解析結果。
+- Type 或 Child Function 的修改會立即影響所有引用者（一律使用最新版本，由 `definition-store` 定義）；Execution 開始時在 immutable in-memory snapshot 固定解析結果。
 - `date` 與 `function` 無法直接以一般 JSON value 跨 Runner 邊界傳遞，其可序列化表示及 runtime semantics 需在後續 design 中明確定義。
 - Execution state、Node trace、logs 與 nested execution tree 僅存於 bounded memory；Backend 或 Project 關閉後不保證保留。

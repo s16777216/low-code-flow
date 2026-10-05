@@ -5,7 +5,7 @@
 ## ADDED Requirements
 
 ### Requirement: Multiple named typed ports
-Function 與可執行 Node SHALL 支援零個或多個具名 input ports 與 output ports。每個 port MUST 具有 immutable ID、在其所屬 signature 內唯一的名稱，以及包含 Type stable ID 與 definition hash 的 Type reference。
+Function 與可執行 Node SHALL 支援零個或多個具名 input ports 與 output ports。每個 port MUST 具有 immutable ID、在其所屬 signature 內唯一的名稱，以及引用 Type stable ID 的 Type reference。
 
 #### Scenario: Define multiple Function inputs and outputs
 - **WHEN** 使用者定義具有 `userId`、`orderId` inputs 與 `order`、`receipt` outputs 的 Function
@@ -76,15 +76,19 @@ Function 與可執行 Node SHALL 支援零個或多個具名 input ports 與 out
 - **THEN** 系統判定該 Function definition 無效
 
 ### Requirement: Function Node signature projection
-Function Node SHALL 投影被引用 Child Function 的完整 input/output port signature，並保存 Child Function identity 與 definition hash。Parent Function MUST NOT 透過該 Function Node 存取 Child Function 的內部 Nodes 或 ports。
+Function Node SHALL 投影被引用 Child Function 的完整 input/output port signature，並只保存 Child Function identity；投影的 ports 一律來自 Child 目前的 signature。Parent Function MUST NOT 透過該 Function Node 存取 Child Function 的內部 Nodes 或 ports。
 
 #### Scenario: Use a multi-port Child Function
 - **WHEN** Child Function 具有兩個 inputs 與三個 outputs
 - **THEN** Parent 中的 Function Node 對外提供對應的兩個 input ports 與三個 output ports
 
 #### Scenario: Detect a changed Child Function signature
-- **WHEN** Child Function signature hash 與 Function Node 保存的 definition hash 不同
-- **THEN** Parent Function 被標示為需要重新驗證，且不得在未驗證狀態開始新 execution
+- **WHEN** Child Function 刪除或改變某個 port，而 Parent 有 Edge 連到該 port
+- **THEN** Parent Function 的 diagnostics 立即指出該 Edge 失效，且 Parent 不得開始新 execution
+
+#### Scenario: Keep the Parent valid after an internal Child change
+- **WHEN** Child Function 只修改內部 Code 或內部 Nodes，ports 不變
+- **THEN** Parent Function 維持原有的可執行狀態，且之後開始的 execution 使用修改後的 Child
 
 #### Scenario: Hide Child Function internals
 - **WHEN** Parent Function 使用 Child Function 的 Function Node

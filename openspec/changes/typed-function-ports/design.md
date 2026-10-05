@@ -9,7 +9,7 @@
 - Node 與 Function 可以有多個輸入與輸出，DAG dependency 必須能由 edges 唯一推導。
 - POC 不引入 union、multiple inheritance、optional ports 或 conditional output routing。
 - POC 不保存 durable execution history，也不在 process restart 後恢復 Execution。
-- Type 與 Function definitions 的 file-driven Project source 及 project-local asset resolution 由獨立的 `file-driven-projects` change 定義；本設計只依賴一個可提供 resolved definitions 的 Project Asset Registry boundary。
+- Type 與 Function definitions 的持久化、Project 範圍與 Asset 解析由獨立的 `definition-store` change 定義（SQLite、一律使用最新版本）；本設計只依賴其提供 resolved definitions 的 Project Asset Registry boundary。
 
 ## Goals / Non-Goals
 
@@ -28,7 +28,7 @@
 - Optional input/output ports、conditional routing、overload 或以 output presence 控制流程。
 - 傳遞 JavaScript closure、任意 executable source 或 process-local object identity。
 - 自動把無關 Type 轉換成目標 Type；轉換必須是明確的 workflow operation。
-- 完整 published revision UI；POC 只保留 stable identity、hash 與重新驗證機制。
+- 發布、版本歷史與版本鎖定；POC 一律使用最新定義，hash 只用於 execution snapshot 與 trace。
 - Durable execution history、history query、分頁、analytics、restart recovery 或 crash reconciliation。
 - Project manifest、Asset file format、filesystem watching、atomic file saving、跨專案引用或 package resolution；這些屬於獨立的 Project capability。
 
@@ -51,11 +51,10 @@ interface TypeDefinition {
 
 interface TypeRef {
   typeId: string;
-  definitionHash: string;
 }
 ```
 
-System base Types 固定且不可修改；使用者 Type 只能有一個 parent。`rootKind` 由 ancestry 計算並在儲存時正規化，不能由 client 任意改變。Definition hash 由 canonicalized Type definition 計算。
+System base Types 固定且不可修改；使用者 Type 只能有一個 parent。`rootKind` 由 ancestry 計算並在儲存時正規化，不能由 client 任意改變。Definition hash 由 canonicalized Type definition 計算。TypeRef 只記錄 Type ID，一律解析為目前定義（見決策 8）；definition hash 只在 execution snapshot 與 trace 中標示當時使用的內容。
 
 選擇 single inheritance 是因為 assignability 等價於 ancestor walk，容易驗證、快取與解釋。Multiple inheritance 會引入 property conflict 與線性化規則，超出 POC。
 
@@ -115,11 +114,10 @@ type DateTransport = {
 type FunctionTransport = {
   $kind: "function-ref";
   functionId: string;
-  definitionHash: string;
 };
 ```
 
-`date` 必須是含時區的 canonical ISO 8601 instant。`function` 表示 Function definition reference，不表示 JavaScript callable 或 closure；實際呼叫仍由 Function Node／orchestrator 完成。
+`date` 必須是含時區的 canonical ISO 8601 instant。`function` 表示 Function definition reference，不表示 JavaScript callable 或 closure；實際呼叫仍由 Function Node／orchestrator 完成。function reference 只記錄 Function ID：被呼叫時從該 Execution 的 snapshot 解析；若不在 snapshot 的 dependency closure 內，則以呼叫當下的最新定義解析，並將實際使用的 definition hash 記入 trace。
 
 這是維持 JSON protocol、runtime snapshot 與安全邊界的必要限制。若未來需要高階 Function composition，可以讓 Function Node 接受 function reference，但不將 executable closure 當資料傳輸。
 
@@ -164,9 +162,11 @@ Node 必須等所有 inputs ready 才開始。Runner 完成後，Backend 先驗�
 
 這保留簡單的 DAG scheduler：downstream 只需要判斷 producer success，不需處理半完成 output set。Conditional output routing 留待未來以獨立 control-flow concept 設計。
 
-### 8. Function Node 固定 Child definition 與 Type revisions
+### 8. 編輯期一律使用最新定義，執行期固定 snapshot
 
-Function Node 保存 Child Function ID、definition hash，以及 projected signature 的 port IDs/TypeRefs。Parent validation 比對目前 Child hash；不同時 Parent invalid，直到使用者接受新 signature 並重新驗證。
+Function Node 只保存 Child Function ID，對外 ports 一律由 Child 目前的 signature 投影，不保存 hash 或 signature 副本。Parent 的合法性以 Child 目前的 ports 即時驗證：Child 刪除或改變某個 port 後，連到該 port 的 Edge 立即成為 diagnostics，Parent 變為不可執行；Child 內部（Code、內部 Nodes）的修改不影響 Parent 的合法性。Type 的引用採相同規則。
+
+替代方案是鎖定 Child definition hash 並要求使用者接受新版本，但在可儲存草稿、多人同時編輯的情境下，每次儲存都會讓所有 Parent 失效。
 
 Execution start 時從 Project Asset Registry 解析完整 Function dependency closure，並在 immutable in-memory snapshot 中固定所有 Function 與 Type definition hashes。後續 definition 變更不影響已開始的 Execution。Nested call 每個 Function Node 建立一個 Child Execution，傳入整組 ports 一次，而不是為每個 value 建立多個 executions。
 
@@ -186,27 +186,27 @@ Registry 同時包含 running 與短暫 completed／failed／cancelled execution
 
 ### 11. Definition storage 經由 Project Asset Registry boundary
 
-Type、Function 與 Code definitions 的 durable source 不由本 change 決定。本 change 只依賴 Project Context 提供下列能力：以 stable asset ID 取得 definition、列出 dependency、取得 canonical definition hash，以及在 definitions 改變時觸發重新驗證。
+Type、Function 與 Code definitions 的持久化由 `definition-store` change 負責：SQLite、Project 為容器、revision 樂觀鎖、可儲存 invalid 草稿、一律使用最新版本、無跨 Project 引用。本 change 只依賴其 Registry 提供：以 stable asset ID 取得 definition、列出依賴與反向依賴、取得 immutable snapshot，以及在 definitions 改變時收到通知。
 
-已確認的產品方向是 file-driven Project、project-local references、無跨專案引用；其 manifest、目錄結構、Asset format、loading、saving 與 watcher semantics 必須由獨立的 `file-driven-projects` capability 規範。這可以避免 typed-port engine 同時擁有 filesystem 與 database storage assumptions。
+本 change 的語意驗證（port 連線、Type 相容性、cycle、繼承規則）透過 Registry 的驗證介面執行，結果成為 Asset 的 diagnostics 與可執行狀態。如此 typed-port engine 不依賴任何資料庫或儲存格式。
 
 ## Risks / Trade-offs
 
 - **[Type definitions 產生較高建模成本]** → 內建常用 base Types、提供從 parent 複製/新增 constraints 的 editor，並讓錯誤訊息指出不相容 ancestry。
-- **[Type 修改造成大量 Function invalidation]** → 使用 dependency index 與 hash 精確列出受影響 Functions，更新必須顯式接受而非靜默漂移。
+- **[Type 或 Child Function 修改立即影響所有引用者]** → 一律使用最新版本的已知代價；以 dependency index 精確列出受影響 Functions，diagnostics 指出失效原因來自哪個被引用的 Asset。
 - **[Port 數量增加使 graph 視覺複雜]** → UI 預設收合未連接 ports，並以 Type name、方向與 compatibility highlighting 輔助連線。
 - **[`function` 名稱容易被誤解為 JavaScript closure]** → UI 與文件明確顯示為 Function Reference，Runner 拒絕 callable/closure transport。
 - **[原子 outputs 限制 error/success 分支用例]** → POC 使用 failed execution 與 trace 表達錯誤；conditional routing 留待獨立設計，避免隱含控制流。
-- **[Definition hash pinning 增加更新流程]** → 提供 revalidate/accept 操作批次更新 references，但執行時永遠使用固定 closure。
+- **[他人儲存的半成品會被執行]** → 草稿只要驗證通過就會被引用者使用；POC 接受此代價，若成為實際問題再改為發布制（見 `definition-store` design 決策 6）。
 - **[Nominal typing 需要顯式 conversion]** → 以 Code Node 先支援完整能力，再依實際使用摩擦決定是否加入 Construct Node。
 - **[Process crash 或 restart 會遺失所有 Execution trace]** → POC 明確不提供 recovery；UI 在連線中斷後將 Execution 視為不存在，並提示重新執行。
 - **[Logs 與 outputs 可能耗盡 Backend memory]** → 同時限制單一 Node payload、單一 Execution trace、completed execution 數量與 retention TTL。
 - **[Completed trace 可能在使用者檢視時被淘汰]** → UI 顯示 ephemeral retention 語意；正在檢視不構成永久保存保證。
-- **[Project Asset Registry 尚未規格化]** → 在套用此 change 前先建立並完成 `file-driven-projects` planning artifacts，讓 definition provider contract 有明確來源。
+- **[Project Asset Registry 尚未實作]** → 先完成 `definition-store` 的 Registry 與 API，本 change 的 engine 才有 definition provider 可用。
 
 ## Migration Plan
 
-目前無 production definitions 或 Execution database，因此不需要 database migration。實作前先完成獨立的 `file-driven-projects` design，使 Project Asset Registry boundary 可用；之後依序建立 Type model、multi-port definitions、Runner protocol、in-memory execution registry 與 editor ports。在 multi-port model 完整可執行前不保留舊單一 Object contract 的相容模式。
+目前無 production definitions 或 Execution database，因此不需要 database migration。實作前先完成 `definition-store` change，使 Project Asset Registry boundary 可用；之後依序建立 Type model、multi-port definitions、Runner protocol、in-memory execution registry 與 editor ports。在 multi-port model 完整可執行前不保留舊單一 Object contract 的相容模式。
 
 Editor UI（port Type 標示、相容性 highlighting、`any` Edge 標記、Inspector 等）依賴 `add-ui-package` change：先完成該 change，再以其 Ui 元件、樣式規格與 domain tokens（如 `type-*` 色彩）實作，而不是在 `frontend` 內另寫樣式。
 

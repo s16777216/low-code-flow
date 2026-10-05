@@ -159,18 +159,18 @@ Function invocation boundary SHALL 依每個 input port 的 declared Type 驗證
 
 #### Scenario: Transport a function reference
 - **WHEN** Node output 產生 `function` value
-- **THEN** 系統傳輸可識別 Function definition 與其 definition hash 的 reference
+- **THEN** 系統傳輸以 Function ID 識別 Function definition 的 reference
 
 #### Scenario: Reject a JavaScript closure as data
 - **WHEN** Node 嘗試將 JavaScript closure 作為 `function` output value
 - **THEN** 系統拒絕該 output
 
 ### Requirement: Stable Type references
-Function definitions SHALL 記錄所引用 Type 的 stable ID 與 definition hash。Execution 開始時，系統 SHALL 在 immutable in-memory snapshot 中固定本次執行使用的 Type IDs 與 definition hashes。Type definition 改變後，系統 MUST 將尚未接受新 hash 的相依 Function 標示為需要重新驗證，不得靜默改變其既有 contract 或已開始的 Execution。
+Function definitions SHALL 只記錄所引用 Type 的 stable ID，並一律解析為該 Type 目前的定義。Type definition 改變後，系統 SHALL 立即以新定義重新驗證所有相依 Functions。Execution 開始時，系統 SHALL 在 immutable in-memory snapshot 中固定本次執行使用的 Type definitions 與其 definition hashes，Type 的後續修改 MUST NOT 影響已開始的 Execution。
 
-#### Scenario: Detect a changed referenced type
-- **WHEN** Function port 引用的 Type definition hash 已改變
-- **THEN** 系統將該 Function 標示為需要以新 Type definition 重新驗證
+#### Scenario: Revalidate after a referenced type changes
+- **WHEN** Function port 引用的 Type 被修改，使原本相容的 Edge 不再相容
+- **THEN** 系統立即以新 Type definition 重新驗證該 Function，並在 diagnostics 中回報不相容的 Edge
 
 #### Scenario: Isolate a running execution from type changes
 - **WHEN** Type 在 Execution 開始後被更新
