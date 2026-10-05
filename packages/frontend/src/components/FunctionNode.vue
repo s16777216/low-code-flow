@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Position, Handle } from '@vue-flow/core'
+import { Position, Handle, useVueFlow } from '@vue-flow/core'
 import type { NodeProps } from '@vue-flow/core'
 import type { FunctionNode } from '@/types/FunctionNode'
+import { checkConnection } from '@/domain/connection'
 import { computed } from 'vue'
 import { CodeIcon } from '@lucide/vue'
 import { UiTooltip, UiBadge } from '@low-code-flow/ui'
@@ -11,6 +12,35 @@ const props = defineProps<NodeProps<FunctionNode>>()
 
 const inputPorts = computed(() => props.data.inputs || [])
 const outputPorts = computed(() => props.data.outputs || [])
+
+const { connectionStartHandle, connectionClickStartHandle, nodes, edges } = useVueFlow()
+
+// While a connection is being dragged, mark each port on the opposite side as one the drop would accept or reject.
+const inputConnectability = computed(() => {
+  const start = connectionStartHandle.value ?? connectionClickStartHandle.value
+  const result: Record<string, boolean> = {}
+  if (!start || start.type !== 'source') return result
+  for (const input of inputPorts.value) {
+    result[input.id] = checkConnection(
+      { source: start.nodeId, sourceHandle: start.id, target: props.id, targetHandle: input.id },
+      { nodes: nodes.value, edges: edges.value },
+    ).valid
+  }
+  return result
+})
+
+const outputConnectability = computed(() => {
+  const start = connectionStartHandle.value ?? connectionClickStartHandle.value
+  const result: Record<string, boolean> = {}
+  if (!start || start.type !== 'target') return result
+  for (const output of outputPorts.value) {
+    result[output.id] = checkConnection(
+      { source: props.id, sourceHandle: output.id, target: start.nodeId, targetHandle: start.id },
+      { nodes: nodes.value, edges: edges.value },
+    ).valid
+  }
+  return result
+})
 
 const typeBadgeClasses: Record<PrimitiveType, string> = {
   string: 'text-type-string',
@@ -31,7 +61,17 @@ const typeBadgeClasses: Record<PrimitiveType, string> = {
     </div>
     <div class="node-function-body">
       <div class="handles-container">
-        <Handle v-for="input in inputPorts" :key="input.id" :id="input.id" type="target" :position="Position.Left">
+        <Handle
+          v-for="input in inputPorts"
+          :key="input.id"
+          :id="input.id"
+          type="target"
+          :position="Position.Left"
+          :class="{
+            'is-connectable': inputConnectability[input.id] === true,
+            'is-blocked': inputConnectability[input.id] === false,
+          }"
+        >
           <UiTooltip :side="'left'">
             <span class="input-handle-label">{{ input.name }}</span>
             <template #content>
@@ -47,7 +87,17 @@ const typeBadgeClasses: Record<PrimitiveType, string> = {
         <CodeIcon :size="44" />
       </div>
       <div class="handles-container">
-        <Handle v-for="output in outputPorts" :key="output.id" :id="output.id" type="source" :position="Position.Right">
+        <Handle
+          v-for="output in outputPorts"
+          :key="output.id"
+          :id="output.id"
+          type="source"
+          :position="Position.Right"
+          :class="{
+            'is-connectable': outputConnectability[output.id] === true,
+            'is-blocked': outputConnectability[output.id] === false,
+          }"
+        >
           <UiTooltip :side="'right'">
             <span class="output-handle-label">{{ output.name }}</span>
             <template #content>
@@ -121,6 +171,15 @@ const typeBadgeClasses: Record<PrimitiveType, string> = {
 
 .handles-container .source {
   transform: translate(-50%, -50%);
+}
+
+.handles-container .vue-flow__handle.is-connectable {
+  background: var(--color-selection);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-selection) 35%, transparent);
+}
+
+.handles-container .vue-flow__handle.is-blocked {
+  opacity: 0.3;
 }
 
 .input-handle-label {
