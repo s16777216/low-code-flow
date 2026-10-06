@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "unicorn", "oxc", "vitest"],
+  "env": { "node": true },
+  "categories": { "correctness": "error" },
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["drizzle-orm", "drizzle-orm/*", "better-sqlite3"],
+            "message": "Only src/db may access the database; use the Registry or the store instead."
+          }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    { "files": ["src/db/**", "drizzle.config.ts"], "rules": { "no-restricted-imports": "off" } }
+  ]
+}
