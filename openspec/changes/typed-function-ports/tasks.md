@@ -22,25 +22,25 @@
 - [x] 3.3 Implement Function Node projection of the Child Function's current signature by Child ID only, and verify tests expose all public ports, hide Child internals, invalidate Parent Edges when a Child port is removed or changed, and keep the Parent valid after internal-only Child changes
 - [x] 3.4 Implement port-to-port Edge definitions and endpoint validation, and verify tests reject missing ports, wrong directions, and nominally incompatible connections
 - [x] 3.5 Enforce one producer per required input and output fan-out, and verify tests reject unconnected or multiply connected inputs while allowing one output to feed multiple compatible inputs
-- [ ] 3.6 Extend DAG validation and cycle detection to derive dependencies from port Edges, and verify invalid graphs cannot start execution
+- [x] 3.6 Extend DAG validation and cycle detection to derive dependencies from port Edges, and verify invalid graphs cannot start execution
 
 ## 4. Runner and Execution Engine
 
-- [ ] 4.1 Update the Runner protocol to accept raw inputs keyed by port name and return raw outputs keyed by port name, and verify protocol contract tests cover multiple inputs and outputs
-- [ ] 4.2 Implement Backend-controlled output typing and validation, and verify tests prevent Runner-supplied Type identity from overriding the Node port declaration
-- [ ] 4.3 Implement atomic required-output publication, and verify missing, extra, or invalid outputs fail the Node without exposing partial results
-- [ ] 4.4 Update the DAG scheduler to mark a Node ready only after all input ports receive validated values, and verify tests cover joins, parallel fan-out, pending state, and upstream-failure skipping
-- [ ] 4.5 Implement multi-port nested Function execution with a single Child Execution per Function Node, and verify tests cover input transfer, atomic Child outputs, Child references, and failure propagation
-- [ ] 4.6 Resolve and pin the complete Function and Type definition closure at execution start, and verify mid-execution definition changes do not alter the running execution
+- [x] 4.1 Update the Runner protocol to accept raw inputs keyed by port name and return raw outputs keyed by port name, and verify protocol contract tests cover multiple inputs and outputs
+- [x] 4.2 Implement Backend-controlled output typing and validation, and verify tests prevent Runner-supplied Type identity from overriding the Node port declaration
+- [x] 4.3 Implement atomic required-output publication, and verify missing, extra, or invalid outputs fail the Node without exposing partial results
+- [x] 4.4 Update the DAG scheduler to mark a Node ready only after all input ports receive validated values, and verify tests cover joins, parallel fan-out, pending state, and upstream-failure skipping
+- [x] 4.5 Implement multi-port nested Function execution with a single Child Execution per Function Node, and verify tests cover input transfer, atomic Child outputs, Child references, and failure propagation
+- [x] 4.6 Resolve and pin the complete Function and Type definition closure at execution start, and verify mid-execution definition changes do not alter the running execution
 
 ## 5. Project Asset Integration and Runtime APIs
 
 - [x] 5.1 Integrate Type and Function resolution with the `definition-store` Registry and its validation interface, and verify stable asset IDs, dependencies, diagnostics, executability, and change notifications resolve through the Registry only
-- [ ] 5.2 Implement a bounded in-memory execution registry keyed by Execution ID, and verify it retains running executions, temporarily retains terminal traces, enforces TTL/count/log/output limits, and never evicts running executions
-- [ ] 5.3 Add Type query, validation, and dependency-impact APIs over Registry snapshots, and verify integration tests cover inheritance validation, immutable base Types, immediate revalidation of dependents after a Type change, and affected Function discovery without cross-project lookup
-- [ ] 5.4 Add Function query and validation APIs for multi-port Assets that always resolve the latest Type and Child definitions, and verify invalid or non-executable definitions are reported and blocked from execution while persistence remains owned by `definition-store`
-- [ ] 5.5 Update the execute API to accept raw values for every Function input port, and verify valid inputs become declared TypedValues while port-specific validation failures prevent execution creation
-- [ ] 5.6 Update execution query and cancel APIs to use the in-memory registry, and verify they return multi-port nested traces while retained and return not found after eviction or runtime shutdown
+- [x] 5.2 Implement a bounded in-memory execution registry keyed by Execution ID, and verify it retains running executions, temporarily retains terminal traces, enforces TTL/count/log/output limits, and never evicts running executions
+- [x] 5.3 Add Type query, validation, and dependency-impact APIs over Registry snapshots, and verify integration tests cover inheritance validation, immutable base Types, immediate revalidation of dependents after a Type change, and affected Function discovery without cross-project lookup
+- [x] 5.4 Add Function query and validation APIs for multi-port Assets that always resolve the latest Type and Child definitions, and verify invalid or non-executable definitions are reported and blocked from execution while persistence remains owned by `definition-store`
+- [x] 5.5 Update the execute API to accept raw values for every Function input port, and verify valid inputs become declared TypedValues while port-specific validation failures prevent execution creation
+- [x] 5.6 Update execution query and cancel APIs to use the in-memory registry, and verify they return multi-port nested traces while retained and return not found after eviction or runtime shutdown
 
 ## 6. Workflow Editor and Execution UX
 
@@ -54,9 +54,9 @@
 
 ## 7. End-to-End Verification
 
-- [ ] 7.1 Add an end-to-end workflow using multiple primitive-derived and object-derived Types, and verify nominally compatible multi-port data completes successfully through parallel and join paths
-- [ ] 7.2 Add an end-to-end nested Function case with multiple inputs and outputs, and verify the final result and in-memory parent/child execution traces record the Type and Function definition hashes pinned at execution start
-- [ ] 7.3 Add negative end-to-end cases for sibling-Type edges, missing inputs, invalid output values, missing outputs, inheritance cycles, DAG cycles, and Parent Edges broken by a changed Child port, and verify each fails at the specified validation boundary
-- [ ] 7.4 Add runtime lifecycle tests, and verify definition changes during execution do not alter its immutable snapshot, terminal traces obey retention limits, and restart does not restore executions
+- [x] 7.1 Add an end-to-end workflow using multiple primitive-derived and object-derived Types, and verify nominally compatible multi-port data completes successfully through parallel and join paths
+- [x] 7.2 Add an end-to-end nested Function case with multiple inputs and outputs, and verify the final result and in-memory parent/child execution traces record the Type and Function definition hashes pinned at execution start
+- [x] 7.3 Add negative end-to-end cases for sibling-Type edges, missing inputs, invalid output values, missing outputs, inheritance cycles, DAG cycles, and Parent Edges broken by a changed Child port, and verify each fails at the specified validation boundary
+- [x] 7.4 Add runtime lifecycle tests, and verify definition changes during execution do not alter its immutable snapshot, terminal traces obey retention limits, and restart does not restore executions
 - [ ] 7.5 Update `docs/poc.md` and example definitions to use nominal Types, typed ports, Project Asset Registry integration, and ephemeral execution traces, then verify terminology and examples agree with the accepted OpenSpec artifacts
 - [ ] 7.6 Run the complete lint, typecheck, unit, integration, and end-to-end suites plus `openspec validate typed-function-ports --strict`, and verify all checks pass without a definition or execution database dependency
