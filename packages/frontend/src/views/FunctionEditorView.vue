@@ -47,7 +47,7 @@ const dirty = computed(() => !!detail.value && serialized() !== baseline.value)
 const selectedNode = computed(() => (getSelectedNodes.value[0] as FlowNode | undefined) ?? null)
 const otherFunctions = computed(() => workspace.functions.filter((f) => f.id !== props.assetId))
 
-async function load() {
+async function load(options: { keepView?: boolean } = {}) {
   loadError.value = ''
   conflict.value = false
   try {
@@ -60,8 +60,10 @@ async function load() {
     nodes.value = flow.nodes
     edges.value = flow.edges
     baseline.value = serialized()
-    await nextTick()
-    await fitView({ padding: 0.2 })
+    if (!options.keepView) {
+      await nextTick()
+      await fitView({ padding: 0.2 })
+    }
   } catch (e) {
     loadError.value = (e as Error).message
   }
@@ -171,7 +173,10 @@ async function save() {
       definition: fromFlow(signature.value, nodes.value, edges.value),
       expectedRevision: detail.value.revision,
     })
-    await load()
+    // Saving reloads the stored definition; keep what the user was looking at and editing.
+    const selected = selectedNode.value?.id
+    await load({ keepView: true })
+    if (selected) await select(selected)
   } catch (e) {
     if (e instanceof ApiError && e.status === 409) conflict.value = true
     else error.value = (e as Error).message
@@ -255,7 +260,7 @@ const cancel = () => api.post(`/executions/${currentExecution.value}/cancel`).ca
     </header>
 
     <div class="space-y-2 px-3 pt-2 empty:hidden">
-      <UiBanner v-if="conflict" variant="warning">Someone else changed this Function. <UiButton variant="secondary" @click="load">Reload</UiButton> (your unsaved edits will be lost)</UiBanner>
+      <UiBanner v-if="conflict" variant="warning">Someone else changed this Function. <UiButton variant="secondary" @click="load()">Reload</UiButton> (your unsaved edits will be lost)</UiBanner>
       <UiBanner v-if="error" variant="danger">{{ error }}</UiBanner>
       <UiBanner v-if="referrers.length" variant="warning">Still used by: {{ referrers.join(', ') }}. Remove those calls first.</UiBanner>
       <UiCollapsible v-if="diagnostics.length">

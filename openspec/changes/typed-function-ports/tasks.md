@@ -50,7 +50,7 @@
 - [x] 6.4 Update Function Node and Code Node inspectors for projected signatures and multi-port code bindings, and verify saved definitions round-trip without exposing Child internals
 - [x] 6.5 Update the execution inspector to display values, Type identities, hashes, errors, and nested executions per port while traces remain in memory, and verify it handles retained execution-time snapshots and trace eviction explicitly
 - [x] 6.6 Highlight the ports that would accept the connection being dragged (inputs when dragging an output, outputs when dragging an input) and dim the rest, and verify the highlight matches the drop validation (type, existing producer, cycle) and clears when the connection ends
-- [ ] 6.7 Provide a Monaco-based Code Node editor in the frontend with TypeScript typings generated from the Node's input/output ports, and verify `ctx.inputs` completion and missing-output errors appear in the editor while backend output validation remains authoritative
+- [x] 6.7 Provide a Monaco-based Code Node editor in the frontend with TypeScript typings generated from the Node's input/output ports, and verify `ctx.inputs` completion and missing-output errors appear in the editor while backend output validation remains authoritative
 
 ## 7. End-to-End Verification
 
