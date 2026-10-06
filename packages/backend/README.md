@@ -2,6 +2,16 @@
 
 Fastify + SQLite（Drizzle）。定義的儲存與 Registry 見 `openspec/changes/definition-store`。
 
+## 啟動開發伺服器
+
+從專案根目錄執行：
+
+```sh
+npm run -w packages/backend dev
+```
+
+Backend 預設監聽 `http://127.0.0.1:3000`。npm 的 `-w` 使用 workspace 套件名稱（`@low-code-flow/backend`）或路徑（`packages/backend`），不能只寫 `backend`。
+
 ## 資料庫可移植性規則（SQLite → Postgres）
 
 新增或修改 schema、查詢時逐項確認：

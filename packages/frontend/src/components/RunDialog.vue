@@ -35,16 +35,22 @@ function submit() {
 </script>
 
 <template>
-  <UiDialog v-model:open="open" title="Run function" description="Values are checked against each input's Type before anything runs.">
+  <UiDialog v-model:open="open" title="Run function"
+    description="Values are checked against each input's Type before anything runs.">
     <form id="run-form" class="space-y-3" @submit.prevent="submit">
       <p v-if="!inputs.length" class="text-sm text-fg-muted">This function takes no inputs.</p>
       <div v-for="port in inputs" :key="port.id">
-        <label :for="`run-${port.id}`" :class="labelClass">{{ port.name }} <span class="text-fg-muted">({{ catalog.name(port.typeId) }})</span></label>
+        <label :for="`run-${port.id}`" :class="labelClass">{{ port.name }} <span class="text-fg-muted">({{
+          catalog.name(port.typeId) }})</span></label>
         <label v-if="kinds[port.id] === 'boolean'" class="flex items-center gap-2 text-sm">
-          <input :id="`run-${port.id}`" type="checkbox" :checked="texts[port.id] === 'true'" @change="texts[port.id] = ($event.target as HTMLInputElement).checked ? 'true' : 'false'" /> true
+          <input :id="`run-${port.id}`" type="checkbox" :checked="texts[port.id] === 'true'"
+            @change="texts[port.id] = ($event.target as HTMLInputElement).checked ? 'true' : 'false'" /> true
         </label>
-        <textarea v-else-if="kinds[port.id] === 'json'" :id="`run-${port.id}`" v-model="texts[port.id]" rows="3" :class="[inputClass, 'font-mono']" />
-        <input v-else :id="`run-${port.id}`" v-model="texts[port.id]" :type="kinds[port.id] === 'number' ? 'number' : 'text'" step="any" :placeholder="kinds[port.id] === 'date' ? '2026-10-02T08:00:00Z' : ''" :class="inputClass" />
+        <textarea v-else-if="kinds[port.id] === 'json'" :id="`run-${port.id}`" v-model="texts[port.id]" rows="3"
+          :class="[inputClass, 'font-mono']" />
+        <input v-else :id="`run-${port.id}`" v-model="texts[port.id]"
+          :type="kinds[port.id] === 'number' ? 'number' : 'text'" step="any"
+          :placeholder="kinds[port.id] === 'date' ? '2026-10-02T08:00:00Z' : ''" :class="inputClass" />
         <p v-if="errors[port.id]" class="mt-1 text-xs text-danger">{{ errors[port.id] }}</p>
       </div>
     </form>
