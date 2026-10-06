@@ -1,7 +1,8 @@
 const REFERENCE_KEYS = new Set(['typeId', 'parentTypeId', 'functionId'])
 
-// ponytail: scans for known key names instead of a per-kind schema; replace with schema-aware
-// extraction once typed-function-ports defines the definition shapes.
+// ponytail: scans for key names instead of walking a per-kind schema. The definition shapes in
+// src/domain use exactly these keys (typeId, parentTypeId, functionId) for every reference, so the scan
+// is exact today; switch to a schema walk if a definition ever stores free-form data under those keys.
 export function extractReferences(definition: unknown): string[] {
   const found = new Set<string>()
   const walk = (value: unknown) => {

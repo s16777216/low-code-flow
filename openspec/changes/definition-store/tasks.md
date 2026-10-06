@@ -36,6 +36,6 @@
 
 ## 6. 整合
 
-- [ ] 6.1 將 `typed-function-ports` 的語意驗證接上 Registry 的驗證介面，並驗證 diagnostics 包含 port 連線、Type 相容性與 cycle 錯誤
+- [x] 6.1 將 `typed-function-ports` 的語意驗證接上 Registry 的驗證介面，並驗證 diagnostics 包含 port 連線、Type 相容性與 cycle 錯誤
 - [x] 6.2 以一個含多個 Type 與多層 Function 的 Project 進行端對端測試：建立、互相引用、存 invalid 草稿、修正、刪除，並驗證每一步的 diagnostics 與可執行狀態
-- [ ] 6.3 從 root 執行 `npm test`、`npm run lint`、`npm run type-check` 皆通過，並執行 `openspec validate definition-store --strict`
+- [x] 6.3 從 root 執行 `npm test`、`npm run lint`、`npm run type-check` 皆通過，並執行 `openspec validate definition-store --strict`

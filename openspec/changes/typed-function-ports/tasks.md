@@ -1,27 +1,27 @@
 ## 1. Project Integration and Type Foundations
 
-- [ ] 1.1 Complete the `definition-store` change through its Project Asset Registry boundary, and verify its contract resolves project-local Type, Function, and Code assets by stable ID without cross-project lookup
-- [ ] 1.2 Add the typed-port domain and test modules to the backend scaffolded by `definition-store`, and verify the project typecheck and test suite run successfully
-- [ ] 1.3 Implement immutable system base Type definitions for `string`, `number`, `date`, `function`, `object`, `boolean`, `array`, and `any`, and verify tests reject creating, modifying, or deleting base Types and reject user Types that inherit `any`
-- [ ] 1.4 Implement user Type definitions with stable IDs, one parent, root-kind resolution, canonical definition hashing, and verify unit tests cover custom and multi-level ancestry
-- [ ] 1.5 Implement inheritance cycle detection and nominal assignability, and verify tests cover same-Type, descendant-to-ancestor, reverse, sibling, structurally identical unrelated Types, and bidirectional `any` connections
+- [x] 1.1 Complete the `definition-store` change through its Project Asset Registry boundary, and verify its contract resolves project-local Type, Function, and Code assets by stable ID without cross-project lookup
+- [x] 1.2 Add the typed-port domain and test modules to the backend scaffolded by `definition-store`, and verify the project typecheck and test suite run successfully
+- [x] 1.3 Implement immutable system base Type definitions for `string`, `number`, `date`, `function`, `object`, `boolean`, `array`, and `any`, and verify tests reject creating, modifying, or deleting base Types and reject user Types that inherit `any`
+- [x] 1.4 Implement user Type definitions with stable IDs, one parent, root-kind resolution, canonical definition hashing, and verify unit tests cover custom and multi-level ancestry
+- [x] 1.5 Implement inheritance cycle detection and nominal assignability, and verify tests cover same-Type, descendant-to-ancestor, reverse, sibling, structurally identical unrelated Types, and bidirectional `any` connections
 
 ## 2. Type Constraints and Runtime Values
 
-- [ ] 2.1 Implement inherited object property definitions and validation, and verify tests cover added properties, missing inherited properties, and rejected incompatible overrides
-- [ ] 2.2 Implement primitive narrowing constraints and array element Type definitions, and verify tests cover valid constraints, parent-violating constraints, and missing array element Types
-- [ ] 2.3 Implement the TypedValue envelope and full-ancestry value validator, and verify equal raw values retain distinct nominal identities and invalid declared values are rejected
-- [ ] 2.4 Implement `any` value transfer, and verify values entering an `any` port keep their Type identity while values leaving `any` are validated against and relabeled as the target Type, failing the receiving Node on mismatch
-- [ ] 2.5 Implement canonical date and Function-reference transport codecs, and verify round-trip tests preserve ISO instants and Function IDs while rejecting JavaScript closures, and that a Function reference resolves from the execution snapshot or, if outside it, from the latest definition with the used hash recorded in the trace
-- [ ] 2.6 Implement explicit target-Type construction through Code Node outputs, and verify unrelated Types cannot pass directly but a validated explicit conversion can produce the target Type
+- [x] 2.1 Implement inherited object property definitions and validation, and verify tests cover added properties, missing inherited properties, and rejected incompatible overrides
+- [x] 2.2 Implement primitive narrowing constraints and array element Type definitions, and verify tests cover valid constraints, parent-violating constraints, and missing array element Types
+- [x] 2.3 Implement the TypedValue envelope and full-ancestry value validator, and verify equal raw values retain distinct nominal identities and invalid declared values are rejected
+- [x] 2.4 Implement `any` value transfer, and verify values entering an `any` port keep their Type identity while values leaving `any` are validated against and relabeled as the target Type, failing the receiving Node on mismatch
+- [x] 2.5 Implement canonical date and Function-reference transport codecs, and verify round-trip tests preserve ISO instants and Function IDs while rejecting JavaScript closures, and that a Function reference resolves from the execution snapshot or, if outside it, from the latest definition with the used hash recorded in the trace
+- [x] 2.6 Implement explicit target-Type construction through Code Node outputs, and verify unrelated Types cannot pass directly but a validated explicit conversion can produce the target Type
 
 ## 3. Multi-Port Definition Model
 
-- [ ] 3.1 Implement immutable named typed input/output port definitions for Functions and executable Nodes, and verify tests cover multiple ports, duplicate-name rejection, and rename-with-stable-ID behavior
-- [ ] 3.2 Implement Function signature projection onto Input and Output boundary Nodes, and verify tests prove the signature is the only source of truth with no divergent boundary copies
-- [ ] 3.3 Implement Function Node projection of the Child Function's current signature by Child ID only, and verify tests expose all public ports, hide Child internals, invalidate Parent Edges when a Child port is removed or changed, and keep the Parent valid after internal-only Child changes
-- [ ] 3.4 Implement port-to-port Edge definitions and endpoint validation, and verify tests reject missing ports, wrong directions, and nominally incompatible connections
-- [ ] 3.5 Enforce one producer per required input and output fan-out, and verify tests reject unconnected or multiply connected inputs while allowing one output to feed multiple compatible inputs
+- [x] 3.1 Implement immutable named typed input/output port definitions for Functions and executable Nodes, and verify tests cover multiple ports, duplicate-name rejection, and rename-with-stable-ID behavior
+- [x] 3.2 Implement Function signature projection onto Input and Output boundary Nodes, and verify tests prove the signature is the only source of truth with no divergent boundary copies
+- [x] 3.3 Implement Function Node projection of the Child Function's current signature by Child ID only, and verify tests expose all public ports, hide Child internals, invalidate Parent Edges when a Child port is removed or changed, and keep the Parent valid after internal-only Child changes
+- [x] 3.4 Implement port-to-port Edge definitions and endpoint validation, and verify tests reject missing ports, wrong directions, and nominally incompatible connections
+- [x] 3.5 Enforce one producer per required input and output fan-out, and verify tests reject unconnected or multiply connected inputs while allowing one output to feed multiple compatible inputs
 - [ ] 3.6 Extend DAG validation and cycle detection to derive dependencies from port Edges, and verify invalid graphs cannot start execution
 
 ## 4. Runner and Execution Engine
@@ -35,7 +35,7 @@
 
 ## 5. Project Asset Integration and Runtime APIs
 
-- [ ] 5.1 Integrate Type and Function resolution with the `definition-store` Registry and its validation interface, and verify stable asset IDs, dependencies, diagnostics, executability, and change notifications resolve through the Registry only
+- [x] 5.1 Integrate Type and Function resolution with the `definition-store` Registry and its validation interface, and verify stable asset IDs, dependencies, diagnostics, executability, and change notifications resolve through the Registry only
 - [ ] 5.2 Implement a bounded in-memory execution registry keyed by Execution ID, and verify it retains running executions, temporarily retains terminal traces, enforces TTL/count/log/output limits, and never evicts running executions
 - [ ] 5.3 Add Type query, validation, and dependency-impact APIs over Registry snapshots, and verify integration tests cover inheritance validation, immutable base Types, immediate revalidation of dependents after a Type change, and affected Function discovery without cross-project lookup
 - [ ] 5.4 Add Function query and validation APIs for multi-port Assets that always resolve the latest Type and Child definitions, and verify invalid or non-executable definitions are reported and blocked from execution while persistence remains owned by `definition-store`
