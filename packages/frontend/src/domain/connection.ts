@@ -1,8 +1,15 @@
-import type { FunctionNode } from '@/types/FunctionNode'
-import { isAssignable } from './assignability'
+import { isAssignable, type AncestryOf } from './assignability'
+
+export interface PortView {
+  id: string
+  name: string
+  typeId: string
+}
 
 // Structurally compatible with Vue Flow's Connection and Edge.
 export interface PortConnection {
+  /** Present when an existing edge is being re-validated; the edge must not count against itself. */
+  id?: string
   source: string
   target: string
   sourceHandle?: string | null
@@ -10,13 +17,18 @@ export interface PortConnection {
 }
 
 export interface PortGraph {
-  nodes: { id: string; data?: FunctionNode }[]
+  nodes: { id: string; data?: { inputs?: PortView[]; outputs?: PortView[] } }[]
   edges: PortConnection[]
 }
 
 export type ConnectionCheck = { valid: true } | { valid: false; reason: string }
 
-export function checkConnection(connection: PortConnection, graph: PortGraph): ConnectionCheck {
+export function checkConnection(
+  connection: PortConnection,
+  graph: PortGraph,
+  ancestryOf: AncestryOf,
+  typeName: (typeId: string) => string = (id) => id,
+): ConnectionCheck {
   const sourceNode = graph.nodes.find((node) => node.id === connection.source)
   const targetNode = graph.nodes.find((node) => node.id === connection.target)
   const sourcePort = sourceNode?.data?.outputs?.find((port) => port.id === connection.sourceHandle)
@@ -25,21 +37,22 @@ export function checkConnection(connection: PortConnection, graph: PortGraph): C
   if (!sourcePort) return { valid: false, reason: 'Source must be an existing output port' }
   if (!targetPort) return { valid: false, reason: 'Target must be an existing input port' }
 
-  if (!isAssignable(sourcePort.type, targetPort.type)) {
+  if (!isAssignable(sourcePort.typeId, targetPort.typeId, ancestryOf)) {
     return {
       valid: false,
-      reason: `Type ${sourcePort.type} is not assignable to ${targetPort.type}`,
+      reason: `${typeName(sourcePort.typeId)} is not assignable to ${typeName(targetPort.typeId)}: only the same Type or a subtype can connect`,
     }
   }
 
-  const inputTaken = graph.edges.some(
+  const others = connection.id ? graph.edges.filter((edge) => edge.id !== connection.id) : graph.edges
+  const inputTaken = others.some(
     (edge) => edge.target === connection.target && edge.targetHandle === connection.targetHandle,
   )
   if (inputTaken) {
     return { valid: false, reason: `Input ${targetPort.name} already has a producer` }
   }
 
-  if (createsCycle(connection.source, connection.target, graph.edges)) {
+  if (createsCycle(connection.source, connection.target, others)) {
     return { valid: false, reason: 'Connection would create a cycle' }
   }
 

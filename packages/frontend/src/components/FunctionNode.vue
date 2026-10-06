@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { Position, Handle, useVueFlow } from '@vue-flow/core'
 import type { NodeProps } from '@vue-flow/core'
-import type { FunctionNode } from '@/types/FunctionNode'
 import { checkConnection } from '@/domain/connection'
-import { computed } from 'vue'
-import { CodeIcon } from '@lucide/vue'
+import { emptyCatalog } from '@/domain/catalog'
+import { catalogKey } from '@/domain/injection'
+import type { FlowNodeData } from '@/domain/flow'
+import type { RootKind } from '@/api/types'
+import { computed, inject, ref } from 'vue'
+import { CodeIcon, LogInIcon, LogOutIcon, WorkflowIcon } from '@lucide/vue'
 import { UiTooltip, UiBadge } from '@low-code-flow/ui'
-import type { PrimitiveType } from '@/types/FunctionNode'
 
-const props = defineProps<NodeProps<FunctionNode>>()
+const props = defineProps<NodeProps<FlowNodeData>>()
+const catalog = inject(catalogKey, ref(emptyCatalog()))
+const icon = computed(() => ({ code: CodeIcon, function: WorkflowIcon, input: LogInIcon, output: LogOutIcon })[props.data.kind])
 
 const inputPorts = computed(() => props.data.inputs || [])
 const outputPorts = computed(() => props.data.outputs || [])
@@ -24,6 +28,7 @@ const inputConnectability = computed(() => {
     result[input.id] = checkConnection(
       { source: start.nodeId, sourceHandle: start.id, target: props.id, targetHandle: input.id },
       { nodes: nodes.value, edges: edges.value },
+      catalog.value.ancestryOf,
     ).valid
   }
   return result
@@ -37,12 +42,14 @@ const outputConnectability = computed(() => {
     result[output.id] = checkConnection(
       { source: props.id, sourceHandle: output.id, target: start.nodeId, targetHandle: start.id },
       { nodes: nodes.value, edges: edges.value },
+      catalog.value.ancestryOf,
     ).valid
   }
   return result
 })
 
-const typeBadgeClasses: Record<PrimitiveType, string> = {
+const typeBadgeClasses: Record<RootKind | 'unknown', string> = {
+  unknown: 'text-fg-muted',
   string: 'text-type-string',
   number: 'text-type-number',
   boolean: 'text-type-boolean',
@@ -52,6 +59,7 @@ const typeBadgeClasses: Record<PrimitiveType, string> = {
   function: 'text-type-function',
   any: 'text-type-any',
 }
+const badgeClass = (typeId: string) => typeBadgeClasses[catalog.value.rootKind(typeId) ?? 'unknown']
 </script>
 
 <template>
@@ -77,14 +85,14 @@ const typeBadgeClasses: Record<PrimitiveType, string> = {
             <template #content>
               <span class="flex items-center gap-1.5">
                 {{ input.name }}
-                <UiBadge variant="outline" :class="typeBadgeClasses[input.type]">{{ input.type }}</UiBadge>
+                <UiBadge variant="outline" :class="badgeClass(input.typeId)">{{ catalog.name(input.typeId) }}</UiBadge>
               </span>
             </template>
           </UiTooltip>
         </Handle>
       </div>
       <div class="node-function-icon">
-        <CodeIcon :size="44" />
+        <component :is="icon" :size="44" />
       </div>
       <div class="handles-container">
         <Handle
@@ -103,7 +111,7 @@ const typeBadgeClasses: Record<PrimitiveType, string> = {
             <template #content>
               <span class="flex items-center gap-1.5">
                 {{ output.name }}
-                <UiBadge variant="outline" :class="typeBadgeClasses[output.type]">{{ output.type }}</UiBadge>
+                <UiBadge variant="outline" :class="badgeClass(output.typeId)">{{ catalog.name(output.typeId) }}</UiBadge>
               </span>
             </template>
           </UiTooltip>

@@ -13,4 +13,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    // The backend has no CORS; the dev server forwards /api to it.
+    proxy: { '/api': { target: process.env.BACKEND_URL ?? 'http://127.0.0.1:3000', rewrite: (path) => path.replace(/^\/api/, '') } },
+  },
 })

@@ -44,11 +44,11 @@
 
 ## 6. Workflow Editor and Execution UX
 
-- [ ] 6.1 Build Type management UI against the Project Asset APIs for browsing ancestry and editing allowed constraints, and verify users cannot edit base Types, create cycles, or submit invalid child definitions
-- [ ] 6.2 Render Function and Node input/output ports with Type names and immutable connection handles, and verify rename operations preserve existing Edges
-- [ ] 6.3 Enforce nominal compatibility while creating Edges and surface actionable validation messages, and verify sibling Types cannot connect while subtype-to-parent connections succeed
-- [ ] 6.4 Update Function Node and Code Node inspectors for projected signatures and multi-port code bindings, and verify saved definitions round-trip without exposing Child internals
-- [ ] 6.5 Update the execution inspector to display values, Type identities, hashes, errors, and nested executions per port while traces remain in memory, and verify it handles retained execution-time snapshots and trace eviction explicitly
+- [x] 6.1 Build Type management UI against the Project Asset APIs for browsing ancestry and editing allowed constraints, and verify users cannot edit base Types or pick a parent that would create an inheritance cycle, and that an invalid child definition is saved as a draft but flagged with its problems and as not executable
+- [x] 6.2 Render Function and Node input/output ports with Type names and immutable connection handles, and verify rename operations preserve existing Edges
+- [x] 6.3 Enforce nominal compatibility while creating Edges and surface actionable validation messages, and verify sibling Types cannot connect while subtype-to-parent connections succeed
+- [x] 6.4 Update Function Node and Code Node inspectors for projected signatures and multi-port code bindings, and verify saved definitions round-trip without exposing Child internals
+- [x] 6.5 Update the execution inspector to display values, Type identities, hashes, errors, and nested executions per port while traces remain in memory, and verify it handles retained execution-time snapshots and trace eviction explicitly
 - [x] 6.6 Highlight the ports that would accept the connection being dragged (inputs when dragging an output, outputs when dragging an input) and dim the rest, and verify the highlight matches the drop validation (type, existing producer, cycle) and clears when the connection ends
 - [ ] 6.7 Provide a Monaco-based Code Node editor in the frontend with TypeScript typings generated from the Node's input/output ports, and verify `ctx.inputs` completion and missing-output errors appear in the editor while backend output validation remains authoritative
 
