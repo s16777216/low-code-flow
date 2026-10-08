@@ -24,7 +24,7 @@ function submit() {
   const values: Record<string, unknown> = {}
   errors.value = {}
   for (const port of props.inputs) {
-    const result = parseField(kinds.value[port.id]!, texts.value[port.id] ?? '')
+    const result = parseField(kinds.value[port.id]!, String(texts.value[port.id] ?? ''))
     if (result.ok) values[port.name] = result.value
     else errors.value[port.id] = result.error
   }
