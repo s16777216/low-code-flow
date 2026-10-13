@@ -1,5 +1,7 @@
 import type { Db } from './db/connection.ts'
 import * as repo from './db/repo.ts'
+import * as endpoints from './db/endpoints.ts'
+import { EndpointAttachedError, EndpointConflictError, validateEndpointPath } from './endpoints.ts'
 import { NotFoundError, ReferencedError, RevisionConflictError, ValidationError } from './errors.ts'
 import { MutableRegistry, type AssetInput, type AssetRecord, type AssetValidator, type ProjectAssetRegistry } from './registry.ts'
 import { validateDocument, type AssetDocument } from './validation.ts'
@@ -64,6 +66,35 @@ export function createDefinitionStore(db: Db, validate?: AssetValidator) {
 
     registry: (projectId: string): ProjectAssetRegistry => registryOf(projectId),
 
+    getEndpoint(projectId: string, functionId: string) {
+      rowOf(projectId, functionId)
+      return endpoints.getEndpoint(db, functionId)
+    },
+    findEndpoint(projectId: string, path: string) {
+      registryOf(projectId)
+      return endpoints.findEndpoint(db, projectId, path)
+    },
+    listEndpoints(projectId: string) {
+      registryOf(projectId)
+      return endpoints.listEndpoints(db, projectId)
+    },
+    setEndpoint(projectId: string, functionId: string, path: unknown) {
+      const row = rowOf(projectId, functionId)
+      if (row.kind !== 'function') throw new ValidationError('Only Functions can have endpoints')
+      validateEndpointPath(path)
+      return db.transaction(() => {
+        const existing = endpoints.findEndpoint(db, projectId, path)
+        if (existing && existing.functionId !== functionId)
+          throw new EndpointConflictError(existing.functionId, rowOf(projectId, existing.functionId).name)
+        return endpoints.setEndpoint(db, projectId, functionId, path)
+      })
+    },
+    removeEndpoint(projectId: string, functionId: string) {
+      const row = rowOf(projectId, functionId)
+      if (row.kind !== 'function') throw new ValidationError('Only Functions can have endpoints')
+      endpoints.removeEndpoint(db, functionId)
+    },
+
     createAsset(projectId: string, doc: AssetDocument): AssetRecord {
       registryOf(projectId)
       const valid = validateDocument(doc)
@@ -84,6 +115,8 @@ export function createDefinitionStore(db: Db, validate?: AssetValidator) {
 
     deleteAsset(projectId: string, assetId: string) {
       rowOf(projectId, assetId)
+      const endpoint = endpoints.getEndpoint(db, assetId)
+      if (endpoint) throw new EndpointAttachedError(endpoint.path)
       const referrers = registryOf(projectId).getDependents(assetId).filter((id) => id !== assetId)
       if (referrers.length) throw new ReferencedError(referrers)
       repo.deleteAsset(db, assetId)

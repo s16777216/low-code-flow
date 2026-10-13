@@ -14,5 +14,8 @@ const { db } = openDatabase(file)
 const store = createDefinitionStore(db, typedPortsValidator)
 const engine = new ExecutionEngine({ runner: new ChildProcessRunner() })
 store.onProjectDeleted((projectId) => engine.cancelProject(projectId))
-const app = buildApp(store, engine)
+const app = buildApp(store, engine, {
+  timeoutMs: process.env.ENDPOINT_TIMEOUT_MS === undefined ? undefined : Number(process.env.ENDPOINT_TIMEOUT_MS),
+  publicBaseUrl: process.env.PUBLIC_BASE_URL,
+})
 await app.listen({ port: Number(process.env.PORT ?? 3000), host: process.env.HOST ?? '127.0.0.1' })

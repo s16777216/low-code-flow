@@ -6,6 +6,8 @@ import { ExecutionEngine, InputValidationError, NotExecutableError } from './eng
 import { NotFoundError, ReferencedError, RevisionConflictError, ValidationError } from './errors.ts'
 import type { AssetRecord, AssetRegistrySnapshot } from './registry.ts'
 import type { DefinitionStore } from './store.ts'
+import { EndpointAttachedError, EndpointConflictError } from './endpoints.ts'
+import { registerHttpEndpoints, type HttpEndpointOptions } from './http-endpoints.ts'
 
 type Body = Record<string, unknown>
 const bodyOf = (request: { body: unknown }): Body => (request.body && typeof request.body === 'object' ? (request.body as Body) : {})
@@ -48,10 +50,18 @@ function impactOf(snapshot: AssetRegistrySnapshot, assetId: string) {
   })
 }
 
-export function buildApp(store: DefinitionStore, engine?: ExecutionEngine) {
+export function buildApp(store: DefinitionStore, engine?: ExecutionEngine, options: HttpEndpointOptions = {}) {
   const app = Fastify()
+  const endpointView = (projectId: string, functionId: string, request: { protocol: string; host: string }) => {
+    const endpoint = store.getEndpoint(projectId, functionId)
+    if (!endpoint) return null
+    const base = (options.publicBaseUrl ?? `${request.protocol}://${request.host}`).replace(/\/$/, '')
+    return { path: endpoint.path, url: `${base}/run/${encodeURIComponent(projectId)}/${endpoint.path}` }
+  }
 
   app.setErrorHandler((error: Error & { statusCode?: number }, _request, reply) => {
+    if (error instanceof EndpointConflictError) return reply.code(409).send({ error: 'endpoint_conflict', message: error.message, functionId: error.functionId, functionName: error.functionName })
+    if (error instanceof EndpointAttachedError) return reply.code(409).send({ error: 'endpoint_attached', message: error.message, path: error.path })
     if (error instanceof ValidationError) return reply.code(400).send({ error: 'invalid_request', message: error.message })
     if (error instanceof NotFoundError) return reply.code(404).send({ error: 'not_found', message: error.message })
     if (error instanceof RevisionConflictError)
@@ -89,7 +99,7 @@ export function buildApp(store: DefinitionStore, engine?: ExecutionEngine) {
     const { projectId, assetId } = request.params
     const record = store.registry(projectId).getAsset(assetId)
     if (!record) throw new NotFoundError(`Asset ${assetId} not found`)
-    return detail(projectId, record)
+    return { ...detail(projectId, record), ...(record.kind === 'function' ? { endpoint: endpointView(projectId, assetId, request) } : {}) }
   })
   app.put<{ Params: { projectId: string; assetId: string } }>('/projects/:projectId/assets/:assetId', async (request) => {
     const { projectId, assetId } = request.params
@@ -104,6 +114,19 @@ export function buildApp(store: DefinitionStore, engine?: ExecutionEngine) {
   })
   app.delete<{ Params: { projectId: string; assetId: string } }>('/projects/:projectId/assets/:assetId', async (request, reply) => {
     store.deleteAsset(request.params.projectId, request.params.assetId)
+    return reply.code(204).send()
+  })
+
+  app.get<{ Params: { projectId: string } }>('/projects/:projectId/endpoints', async (request) =>
+    store.listEndpoints(request.params.projectId).map((endpoint) => ({ functionId: endpoint.functionId, ...endpointView(request.params.projectId, endpoint.functionId, request) })),
+  )
+  app.put<{ Params: { projectId: string; functionId: string } }>('/projects/:projectId/assets/:functionId/endpoint', async (request) => {
+    const { projectId, functionId } = request.params
+    store.setEndpoint(projectId, functionId, bodyOf(request).path)
+    return endpointView(projectId, functionId, request)
+  })
+  app.delete<{ Params: { projectId: string; functionId: string } }>('/projects/:projectId/assets/:functionId/endpoint', async (request, reply) => {
+    store.removeEndpoint(request.params.projectId, request.params.functionId)
     return reply.code(204).send()
   })
 
@@ -161,10 +184,11 @@ export function buildApp(store: DefinitionStore, engine?: ExecutionEngine) {
     const snapshot = store.registry(projectId).getSnapshot()
     const record = snapshot.assets.get(assetId)
     if (!record || record.kind !== 'function') throw new NotFoundError(`Function ${assetId} not found`)
-    return functionView(snapshot, projectId, record)
+    return { ...functionView(snapshot, projectId, record), endpoint: endpointView(projectId, assetId, request) }
   })
 
   if (engine) {
+    registerHttpEndpoints(app, store, engine, options)
     app.post<{ Params: { projectId: string; assetId: string } }>('/projects/:projectId/functions/:assetId/execute', async (request, reply) => {
       const { projectId, assetId } = request.params
       const inputs = bodyOf(request).inputs

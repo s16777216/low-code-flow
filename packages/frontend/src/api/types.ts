@@ -30,6 +30,12 @@ export interface AssetDetail extends Omit<AssetSummary, 'diagnostics'> {
   definition: unknown
   contentHash: string
   diagnostics: Diagnostic[]
+  endpoint?: EndpointInfo | null
+}
+
+export interface EndpointInfo {
+  path: string
+  url: string
 }
 
 export interface SystemType {
@@ -113,6 +119,8 @@ export interface ExecutionTree {
   id: string
   functionId: string
   functionName: string
+  source?: 'editor' | 'http'
+  endpointPath?: string
   status: 'running' | 'success' | 'failed' | 'cancelled'
   inputs: PortRecord[]
   outputs: PortRecord[]

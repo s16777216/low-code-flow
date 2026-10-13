@@ -29,6 +29,7 @@ const ports = (list: PortDefinition[]) => list
       </div>
       <PortsEditor v-model="signature.inputs" title="Inputs" :catalog="catalog" base-name="input" />
       <PortsEditor v-model="signature.outputs" title="Outputs" :catalog="catalog" base-name="output" />
+      <slot name="settings" />
       <p class="text-xs text-fg-muted">Select a node on the canvas to edit it. Ports keep their identity when renamed, so connections stay.</p>
     </template>
 

@@ -31,6 +31,7 @@ function duration(start?: string, end?: string) {
       <span class="font-semibold text-heading">{{ tree.functionName }}</span>
       <UiBadge :variant="badgeVariant[tree.status]">{{ tree.status }}</UiBadge>
       <span class="text-xs text-fg-muted">{{ duration(tree.startedAt, tree.completedAt) }}</span>
+      <span v-if="tree.source" class="text-xs text-fg-muted">{{ tree.source === 'http' ? `HTTP endpoint: ${tree.endpointPath ?? ''}` : 'Editor' }}</span>
     </div>
     <p v-if="tree.error" class="text-danger">{{ tree.error.message }}</p>
 

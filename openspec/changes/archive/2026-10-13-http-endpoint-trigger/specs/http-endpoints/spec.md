@@ -53,6 +53,10 @@ Endpoint 請求 SHALL 使用 JSON body，其頂層 MUST 為 object，key 對應 
 - **WHEN** Function 有 `orderId: string` 與 `quantity: number` 兩個 input ports，請求 body 為 `{"orderId": "A-1", "quantity": 2}`
 - **THEN** 系統以這兩個值開始執行
 
+#### Scenario: Accept an empty request for a function without inputs
+- **WHEN** Function 沒有 input port，外部系統送出 POST 請求且不帶 body 與 Content-Type，或使用 `application/json` 傳送空 body 或 `{}`
+- **THEN** 系統以空 inputs 開始執行；此例外不開放 GET，GET 仍回傳 405
+
 #### Scenario: Report port-level validation errors
 - **WHEN** 請求 body 缺少 `orderId`，且 `quantity` 的值為字串
 - **THEN** 系統回傳 400，回應中分別列出 `orderId` 缺少與 `quantity` Type 不符

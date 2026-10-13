@@ -3,6 +3,7 @@
   "include": ["src/**/*", "drizzle.config.ts", "vitest.config.ts"],
   "compilerOptions": {
     "noEmit": true,
+    "erasableSyntaxOnly": true,
     "allowImportingTsExtensions": true,
     "noUncheckedIndexedAccess": true,
     "types": ["node"]

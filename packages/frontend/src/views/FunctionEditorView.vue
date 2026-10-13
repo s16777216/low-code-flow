@@ -11,6 +11,7 @@ import type { AssetDetail, Diagnostic, ExecutionTree, FunctionDefinition } from 
 import DefaultEdge from '@/components/DefaultEdge.vue'
 import DiagnosticsList from '@/components/DiagnosticsList.vue'
 import ExecutionTraceView from '@/components/ExecutionTraceView.vue'
+import EndpointSettings from '@/components/EndpointSettings.vue'
 import FunctionInspector from '@/components/FunctionInspector.vue'
 import FunctionNode from '@/components/FunctionNode.vue'
 import RunDialog from '@/components/RunDialog.vue'
@@ -187,13 +188,16 @@ async function save() {
 
 async function remove() {
   referrers.value = []
+  error.value = ''
   try {
     await api.delete(`/projects/${props.projectId}/assets/${props.assetId}`)
     baseline.value = serialized()
     await workspace.refresh()
     await router.push({ name: 'project', params: { projectId: props.projectId } })
   } catch (e) {
-    if (e instanceof ApiError && e.status === 409) {
+    if (e instanceof ApiError && e.body.error === 'endpoint_attached') {
+      error.value = 'Remove the endpoint before deleting this Function.'
+    } else if (e instanceof ApiError && e.status === 409) {
       referrers.value = ((e.body.referencedBy as string[]) ?? []).map((id) => workspace.functions.find((f) => f.id === id)?.name ?? id)
     } else error.value = (e as Error).message
   }
@@ -206,28 +210,51 @@ const traceOpen = ref(false)
 const runProblems = ref<string[]>([])
 const expired = ref(false)
 const currentExecution = ref('')
-const polling = { alive: true }
+const executionToInspect = ref('')
+const polling = { alive: true, sequence: 0 }
+
+async function followExecution(executionId: string, sequence: number) {
+  while (polling.alive && sequence === polling.sequence) {
+    try {
+      const loaded = await api.get<ExecutionTree>(`/executions/${encodeURIComponent(executionId)}`)
+      if (!polling.alive || sequence !== polling.sequence) return
+      trace.value = loaded
+    } catch (e) {
+      if (!polling.alive || sequence !== polling.sequence) return
+      if (e instanceof ApiError && e.status === 404) expired.value = true
+      else throw e
+      return
+    }
+    if (trace.value.status !== 'running') return
+    await new Promise((resolve) => setTimeout(resolve, 400))
+  }
+}
+
+async function inspectExecution() {
+  const sequence = ++polling.sequence
+  runProblems.value = []
+  expired.value = false
+  trace.value = null
+  currentExecution.value = executionToInspect.value.trim()
+  try { await followExecution(currentExecution.value, sequence) }
+  catch (e) {
+    if (sequence === polling.sequence) runProblems.value = [(e as Error).message]
+  }
+}
 
 async function run(values: Record<string, unknown>) {
+  const sequence = ++polling.sequence
   trace.value = null
   expired.value = false
   runProblems.value = []
   traceOpen.value = true
   try {
     const { executionId } = await api.post<{ executionId: string }>(`/projects/${props.projectId}/functions/${props.assetId}/execute`, { inputs: values })
+    if (!polling.alive || sequence !== polling.sequence) return
     currentExecution.value = executionId
-    while (polling.alive) {
-      try {
-        trace.value = await api.get<ExecutionTree>(`/executions/${executionId}`)
-      } catch (e) {
-        if (e instanceof ApiError && e.status === 404) expired.value = true
-        else throw e
-        break
-      }
-      if (trace.value.status !== 'running') break
-      await new Promise((resolve) => setTimeout(resolve, 400))
-    }
+    await followExecution(executionId, sequence)
   } catch (e) {
+    if (!polling.alive || sequence !== polling.sequence) return
     if (e instanceof ApiError && e.body.error === 'invalid_input') {
       const ports = e.body.ports as Record<string, string[]>
       runProblems.value = [...Object.entries(ports).map(([port, errors]) => `${port}: ${errors.join('; ')}`), ...((e.body.unknownKeys as string[]) ?? []).map((k) => `unknown input ${k}`)]
@@ -257,9 +284,11 @@ const cancel = () => api.post(`/executions/${currentExecution.value}/cancel`).ca
       <UiButton :disabled="!dirty || saving" @click="save"><SaveIcon class="size-4" aria-hidden="true" /> Save</UiButton>
       <UiButton variant="secondary" :disabled="dirty || !detail.executable" :title="dirty ? 'Save before running' : detail.executable ? '' : 'Fix the problems first'" @click="runOpen = true"><PlayIcon class="size-4" aria-hidden="true" /> Run</UiButton>
       <UiButton variant="danger" aria-label="Delete function" @click="remove">Delete</UiButton>
+      <UiButton variant="ghost" @click="traceOpen = !traceOpen">Inspect execution</UiButton>
     </header>
 
     <div class="space-y-2 px-3 pt-2 empty:hidden">
+      <UiBanner v-if="detail.endpoint" variant="info">此 Function 目前對外提供服務。儲存後，外部呼叫會立即使用新的定義。</UiBanner>
       <UiBanner v-if="conflict" variant="warning">Someone else changed this Function. <UiButton variant="secondary" @click="load()">Reload</UiButton> (your unsaved edits will be lost)</UiBanner>
       <UiBanner v-if="error" variant="danger">{{ error }}</UiBanner>
       <UiBanner v-if="referrers.length" variant="warning">Still used by: {{ referrers.join(', ') }}. Remove those calls first.</UiBanner>
@@ -283,7 +312,9 @@ const cancel = () => api.post(`/executions/${currentExecution.value}/cancel`).ca
           <Controls />
         </VueFlow>
       </div>
-      <FunctionInspector v-model:name="name" v-model:signature="signature" :project-id="projectId" :node="selectedNode" :catalog="catalog" @update-node="updateNode" />
+      <FunctionInspector v-model:name="name" v-model:signature="signature" :project-id="projectId" :node="selectedNode" :catalog="catalog" @update-node="updateNode">
+        <template #settings><EndpointSettings :project-id="projectId" :asset-id="assetId" :endpoint="detail.endpoint ?? null" @updated="detail.endpoint = $event" /></template>
+      </FunctionInspector>
     </div>
 
     <section v-if="traceOpen" class="max-h-[45%] min-h-40 overflow-y-auto border-t border-border bg-bg p-3" aria-label="Execution">
@@ -295,10 +326,14 @@ const cancel = () => api.post(`/executions/${currentExecution.value}/cancel`).ca
         </div>
       </div>
       <UiBanner variant="info" class="mb-2">Execution traces are kept in memory only. They disappear after a while and when the server restarts.</UiBanner>
+      <form class="mb-2 flex gap-2" @submit.prevent="inspectExecution">
+        <input v-model="executionToInspect" :class="[compactInputClass, 'min-w-0 flex-1']" aria-label="Execution ID" placeholder="Execution ID from X-Execution-Id" />
+        <UiButton type="submit" variant="secondary" :disabled="!executionToInspect.trim()">Load trace</UiButton>
+      </form>
       <UiBanner v-if="runProblems.length" variant="danger" class="mb-2"><ul><li v-for="p in runProblems" :key="p">{{ p }}</li></ul></UiBanner>
       <UiBanner v-if="expired" variant="warning" class="mb-2">This execution is no longer available (expired or the server restarted). Run it again.</UiBanner>
       <ExecutionTraceView v-if="trace" :tree="trace" :catalog="catalog" />
-      <p v-else-if="!runProblems.length && !expired" class="text-sm text-fg-muted">Starting...</p>
+      <p v-else-if="!runProblems.length && !expired" class="text-sm text-fg-muted">{{ currentExecution ? 'Starting...' : 'Enter an execution ID to inspect a call.' }}</p>
     </section>
 
     <RunDialog v-model:open="runOpen" :inputs="signature.inputs" :catalog="catalog" @run="run" />

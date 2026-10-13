@@ -55,12 +55,15 @@ Path 規則：一或多個以 `/` 分隔的段落，每段為 `[a-z0-9]+(-[a-z0-
 
 ### 3. 請求處理流程
 
+沒有 input port 的 Function 接受完全不帶 body 與 Content-Type 的 POST，以及 `application/json` 的空 body；此時 inputs 為空 object。非空 body 仍須為 JSON object，且此例外不開放 GET。解析器的例外僅套用於 `/run` 路由。
+
 ```text
 POST /run/:projectId/*
   │
-  ├─ Content-Type 不是 application/json        → 415
-  ├─ body 不是合法 JSON 或頂層不是 object        → 400
+  ├─ Content-Type 不是 application/json        → 415（Fastify 解析 body 時先判斷，早於路由比對）
+  ├─ body 不是合法 JSON                          → 400（同上）
   ├─ 找不到 Project 或 endpoint                  → 404
+  ├─ 頂層不是 object                             → 400
   ├─ 從 Registry snapshot 取得 Function
   │   └─ 不可執行                               → 409（附 diagnostics 摘要）
   ├─ body 對應 input ports 並驗證

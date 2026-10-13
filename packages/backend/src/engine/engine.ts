@@ -37,6 +37,7 @@ interface RunContext {
   rootId: string
   projectId: string
   source: 'editor' | 'http'
+  endpointPath?: string
   definitions: PinnedDefinition[]
 }
 
@@ -64,7 +65,7 @@ export class ExecutionEngine {
   }
 
   /** Validates, pins the definitions, then runs in the background. Throws before any execution exists. */
-  start(snapshot: AssetRegistrySnapshot, functionId: string, rawInputs: Record<string, unknown>, options: { source?: 'editor' | 'http' } = {}) {
+  start(snapshot: AssetRegistrySnapshot, functionId: string, rawInputs: Record<string, unknown>, options: { source?: 'editor' | 'http'; endpointPath?: string } = {}) {
     const record = snapshot.assets.get(functionId)
     if (!record || record.kind !== 'function') throw new NotFoundError(`Function ${functionId} not found`)
     if (!record.executable) throw new NotExecutableError(record.diagnostics)
@@ -94,6 +95,7 @@ export class ExecutionEngine {
       rootId,
       projectId: snapshot.projectId,
       source: options.source ?? 'editor',
+      endpointPath: options.endpointPath,
       definitions: this.pin(snapshot, functionId),
     }
     this.controllers.set(rootId, controller)
@@ -149,6 +151,7 @@ export class ExecutionEngine {
       functionName: record.name,
       status: 'running',
       source: ctx.source,
+      ...(ctx.endpointPath ? { endpointPath: ctx.endpointPath } : {}),
       inputs: [],
       outputs: [],
       nodes: [],

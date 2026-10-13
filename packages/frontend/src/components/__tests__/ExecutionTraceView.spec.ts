@@ -31,6 +31,10 @@ const tree = (overrides: Partial<ExecutionTree> = {}): ExecutionTree => ({
 })
 
 describe('ExecutionTraceView', () => {
+  it('shows the HTTP execution source and endpoint path', () => {
+    const wrapper = mount(ExecutionTraceView, { props: { tree: tree({ source: 'http', endpointPath: 'orders/checkout' }), catalog } })
+    expect(wrapper.text()).toContain('HTTP endpoint: orders/checkout')
+  })
   it('shows status, duration, and each port with its Type name, short hash and value', () => {
     const text = mount(ExecutionTraceView, { props: { tree: tree(), catalog } }).text()
     expect(text).toContain('Checkout')

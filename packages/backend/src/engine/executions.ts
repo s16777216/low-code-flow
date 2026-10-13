@@ -41,6 +41,7 @@ export interface FunctionExecution {
   functionName: string
   status: ExecutionStatus
   source: 'editor' | 'http'
+  endpointPath?: string
   inputs: PortRecord[]
   outputs: PortRecord[]
   error?: { message: string }

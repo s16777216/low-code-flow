@@ -14,7 +14,10 @@ export default defineConfig({
     },
   },
   server: {
-    // The backend has no CORS; the dev server forwards /api to it.
-    proxy: { '/api': { target: process.env.BACKEND_URL ?? 'http://127.0.0.1:3000', rewrite: (path) => path.replace(/^\/api/, '') } },
+    // The backend has no CORS; keep editor APIs and callable endpoints on the same origin.
+    proxy: {
+      '/api': { target: process.env.BACKEND_URL ?? 'http://127.0.0.1:3000', rewrite: (path) => path.replace(/^\/api/, '') },
+      '/run': { target: process.env.BACKEND_URL ?? 'http://127.0.0.1:3000' },
+    },
   },
 })
